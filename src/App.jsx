@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Feather, Check, Clock, Circle, ChevronRight, User, LayoutGrid, StickyNote, Plus, Minus, Loader2 } from "lucide-react";
+import { Feather, Check, Clock, Circle, ChevronRight, User, LayoutGrid, StickyNote, Plus, Minus, Loader2, UserPlus, X } from "lucide-react";
 
 const SUPABASE_URL = "https://xoxdqbdmryhcqxunvpxd.supabase.co";
 const SUPABASE_KEY = "sb_publishable_mcE5RKGiKNhQLrfgEDdzdg_enaeizB6";
@@ -288,13 +288,67 @@ function LoginScreen({ onSent }) {
   );
 }
 
+function NewClientForm({ onCreated, onClose, accessToken }) {
+  const [name, setName] = useState("");
+  const [species, setSpecies] = useState("");
+  const [email, setEmail] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+
+  async function submit(e) {
+    e.preventDefault();
+    setSaving(true);
+    setError(null);
+    try {
+      const today = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
+      const [row] = await supaFetch(
+        "clients",
+        {
+          method: "POST",
+          body: JSON.stringify([
+            { name, species, email: email.trim(), stage: 0, started_at: today, notes: {} },
+          ]),
+        },
+        accessToken
+      );
+      onCreated(rowToClient(row));
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="new-client">
+      <form onSubmit={submit} className="new-client__form">
+        <input placeholder="Nome completo" required value={name} onChange={(e) => setName(e.target.value)} />
+        <input placeholder="Plantel (ex: Curió, Bicudo)" value={species} onChange={(e) => setSpecies(e.target.value)} />
+        <input
+          type="email"
+          placeholder="E-mail do cliente (login)"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <div className="new-client__actions">
+          <button type="button" onClick={onClose} className="new-client__cancel">Cancelar</button>
+          <button type="submit" disabled={saving}>{saving ? "Salvando…" : "Cadastrar cliente"}</button>
+        </div>
+        {error && <p className="login-error">Não foi possível cadastrar: {error}</p>}
+      </form>
+    </div>
+  );
+}
+
 export default function App() {
-  const [session, setSession] = useState(undefined); // undefined = ainda checando, null = deslogado
+  const [session, setSession] = useState(undefined);
   const [view, setView] = useState("cliente");
   const [clients, setClients] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showNewClient, setShowNewClient] = useState(false);
   const client = clients.find((c) => c.id === selectedId);
   const isAdmin = session?.email === ADMIN_EMAIL;
 
@@ -728,6 +782,53 @@ export default function App() {
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
+
+        .client-pill--new {
+          background: transparent;
+          border-style: dashed;
+          color: var(--teal);
+        }
+
+        .new-client {
+          background: #fbf8f0;
+          border: 1px solid var(--line);
+          border-radius: 12px;
+          padding: 16px 18px;
+          margin-bottom: 24px;
+        }
+        .new-client__form {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .new-client__form input {
+          font-family: 'Inter', sans-serif;
+          font-size: 13.5px;
+          padding: 10px 12px;
+          border: 1px solid var(--line);
+          border-radius: 7px;
+          background: var(--paper);
+        }
+        .new-client__actions {
+          display: flex;
+          gap: 10px;
+          justify-content: flex-end;
+        }
+        .new-client__actions button {
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: 11.5px;
+          text-transform: uppercase;
+          padding: 9px 14px;
+          border-radius: 7px;
+          cursor: pointer;
+          border: 1px solid var(--ink);
+          background: var(--ink);
+          color: var(--paper);
+        }
+        .new-client__cancel {
+          background: transparent !important;
+          color: var(--ink) !important;
+        }
       `}</style>
 
       <div className="shell">
@@ -794,7 +895,24 @@ export default function App() {
                 <ChevronRight size={12} />
               </button>
             ))}
+            {view === "admin" && !showNewClient && (
+              <button className="client-pill client-pill--new" onClick={() => setShowNewClient(true)}>
+                <UserPlus size={13} /> Novo cliente
+              </button>
+            )}
           </div>
+        )}
+
+        {isAdmin && view === "admin" && showNewClient && (
+          <NewClientForm
+            accessToken={session.accessToken}
+            onClose={() => setShowNewClient(false)}
+            onCreated={(newClient) => {
+              setClients((prev) => [...prev, newClient]);
+              setSelectedId(newClient.id);
+              setShowNewClient(false);
+            }}
+          />
         )}
 
         <Timeline
