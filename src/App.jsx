@@ -3,13 +3,15 @@ import { Feather, Check, Clock, Circle, ChevronRight, User, LayoutGrid, StickyNo
 
 const SUPABASE_URL = "https://xoxdqbdmryhcqxunvpxd.supabase.co";
 const SUPABASE_KEY = "sb_publishable_mcE5RKGiKNhQLrfgEDdzdg_enaeizB6";
+const ADMIN_EMAIL = "sispassaros@gmail.com";
+const SESSION_STORAGE_KEY = "rota-da-licenca-session";
 
-async function supaFetch(path, options = {}) {
+async function supaFetch(path, options = {}, accessToken) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     ...options,
     headers: {
       apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`,
+      Authorization: `Bearer ${accessToken || SUPABASE_KEY}`,
       "Content-Type": "application/json",
       ...(options.method && options.method !== "GET" ? { Prefer: "return=representation" } : {}),
       ...options.headers,
@@ -20,6 +22,54 @@ async function supaFetch(path, options = {}) {
     throw new Error(`${res.status}: ${text}`);
   }
   return res.json();
+}
+
+function parseJwt(token) {
+  try {
+    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const json = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
+
+async function requestMagicLink(email) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/otp`, {
+    method: "POST",
+    headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ email, create_user: true }),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`${res.status}: ${text}`);
+  }
+}
+
+function readStoredSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function extractSessionFromUrl() {
+  if (!window.location.hash) return null;
+  const params = new URLSearchParams(window.location.hash.slice(1));
+  const accessToken = params.get("access_token");
+  if (!accessToken) return null;
+  const payload = parseJwt(accessToken);
+  if (!payload?.email) return null;
+  const session = { accessToken, email: payload.email };
+  window.history.replaceState(null, "", window.location.pathname);
+  return session;
 }
 
 function rowToClient(row) {
@@ -122,19 +172,149 @@ function Timeline({ client, editable, onAdvance, onRetreat, onNote }) {
   );
 }
 
+function LoginScreen({ onSent }) {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("idle");
+  const [error, setError] = useState(null);
+
+  async function submit(e) {
+    e.preventDefault();
+    if (!email) return;
+    setStatus("sending");
+    setError(null);
+    try {
+      await requestMagicLink(email.trim());
+      setStatus("sent");
+      onSent?.();
+    } catch (e) {
+      setError(e.message);
+      setStatus("idle");
+    }
+  }
+
+  return (
+    <div className="app">
+      <style>{`
+        .login-shell {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 24px;
+        }
+        .login-card {
+          max-width: 380px;
+          width: 100%;
+          background: #fbf8f0;
+          border: 1px solid var(--line);
+          border-radius: 14px;
+          padding: 30px 26px;
+          text-align: center;
+        }
+        .login-card .brand__mark { margin: 0 auto 14px; }
+        .login-card h1 {
+          font-family: 'Fraunces', serif;
+          font-weight: 500;
+          font-size: 22px;
+          margin: 0 0 6px;
+        }
+        .login-card p {
+          font-size: 13.5px;
+          color: #5a6152;
+          margin: 0 0 20px;
+          line-height: 1.5;
+        }
+        .login-card input {
+          width: 100%;
+          font-family: 'Inter', sans-serif;
+          font-size: 14px;
+          padding: 11px 13px;
+          border: 1px solid var(--line);
+          border-radius: 8px;
+          background: var(--paper);
+          margin-bottom: 12px;
+        }
+        .login-card button {
+          width: 100%;
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          background: var(--ink);
+          color: var(--paper);
+          border: none;
+          padding: 12px;
+          border-radius: 8px;
+          cursor: pointer;
+        }
+        .login-card button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .login-error {
+          font-size: 12px;
+          color: var(--rust);
+          margin-top: 10px;
+        }
+        .login-sent {
+          font-size: 13.5px;
+          color: var(--teal);
+        }
+      `}</style>
+      <div className="login-shell">
+        <div className="login-card">
+          <div className="brand__mark" style={{ display: "inline-flex" }}><Feather size={17} /></div>
+          <h1>Rota da Licença</h1>
+          {status === "sent" ? (
+            <p className="login-sent">Enviamos um link de acesso para <b>{email}</b>. Abra seu e-mail e clique nele para entrar.</p>
+          ) : (
+            <>
+              <p>Digite seu e-mail para receber um link de acesso ao seu processo.</p>
+              <form onSubmit={submit}>
+                <input
+                  type="email"
+                  required
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                <button type="submit" disabled={status === "sending"}>
+                  {status === "sending" ? "Enviando…" : "Enviar link de acesso"}
+                </button>
+              </form>
+              {error && <p className="login-error">Não foi possível enviar: {error}</p>}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
+  const [session, setSession] = useState(undefined); // undefined = ainda checando, null = deslogado
   const [view, setView] = useState("cliente");
   const [clients, setClients] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const client = clients.find((c) => c.id === selectedId);
+  const isAdmin = session?.email === ADMIN_EMAIL;
 
   useEffect(() => {
+    const fromUrl = extractSessionFromUrl();
+    if (fromUrl) {
+      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(fromUrl));
+      setSession(fromUrl);
+      return;
+    }
+    setSession(readStoredSession());
+  }, []);
+
+  useEffect(() => {
+    if (!session) return;
     let active = true;
     async function load() {
+      setLoading(true);
       try {
-        const data = await supaFetch("clients?select=*&order=created_at.asc");
+        const data = await supaFetch("clients?select=*&order=created_at.asc", {}, session.accessToken);
         if (!active) return;
         const mapped = data.map(rowToClient);
         setClients(mapped);
@@ -149,20 +329,39 @@ export default function App() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [session]);
 
   async function updateClient(id, updater) {
     const current = clients.find((c) => c.id === id);
     const next = updater(current);
     setClients((prev) => prev.map((c) => (c.id === id ? next : c)));
     try {
-      await supaFetch(`clients?id=eq.${id}`, {
-        method: "PATCH",
-        body: JSON.stringify({ stage: next.stage, notes: next.notes }),
-      });
+      await supaFetch(
+        `clients?id=eq.${id}`,
+        { method: "PATCH", body: JSON.stringify({ stage: next.stage, notes: next.notes }) },
+        session.accessToken
+      );
     } catch (e) {
       setError(e.message);
     }
+  }
+
+  function logout() {
+    localStorage.removeItem(SESSION_STORAGE_KEY);
+    setSession(null);
+    setClients([]);
+  }
+
+  if (session === undefined) {
+    return (
+      <div className="app app--center">
+        <Loader2 className="spin" size={22} />
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <LoginScreen />;
   }
 
   if (loading) {
@@ -184,7 +383,9 @@ export default function App() {
   if (!client) {
     return (
       <div className="app app--center">
-        <p style={{ fontFamily: "monospace", fontSize: 13 }}>Nenhum cliente cadastrado ainda.</p>
+        <p style={{ fontFamily: "monospace", fontSize: 13 }}>
+          {isAdmin ? "Nenhum cliente cadastrado ainda." : "Não encontramos um processo com esse e-mail. Fale com seu consultor."}
+        </p>
       </div>
     );
   }
@@ -539,16 +740,21 @@ export default function App() {
             </div>
           </div>
           <div className="switcher">
-            <button className={view === "cliente" ? "active" : ""} onClick={() => setView("cliente")}>
-              <User size={13} /> Cliente
-            </button>
-            <button className={view === "admin" ? "active" : ""} onClick={() => setView("admin")}>
-              <LayoutGrid size={13} /> Painel
-            </button>
+            {isAdmin && (
+              <>
+                <button className={view === "cliente" ? "active" : ""} onClick={() => setView("cliente")}>
+                  <User size={13} /> Cliente
+                </button>
+                <button className={view === "admin" ? "active" : ""} onClick={() => setView("admin")}>
+                  <LayoutGrid size={13} /> Painel
+                </button>
+              </>
+            )}
+            <button onClick={logout}>Sair</button>
           </div>
         </div>
 
-        {view === "admin" && (
+        {isAdmin && view === "admin" && (
           <div className="admin-summary">
             <div className="admin-summary__card">
               <b>{clients.length}</b>
@@ -566,32 +772,34 @@ export default function App() {
         )}
 
         <div className="hero">
-          <div className="hero__eyebrow">{view === "cliente" ? "Acompanhamento do processo" : "Painel do consultor"}</div>
-          <h1>{view === "cliente" ? `Olá, ${client.name.split(" ")[0]}` : "Seus clientes"}</h1>
+          <div className="hero__eyebrow">{isAdmin && view === "admin" ? "Painel do consultor" : "Acompanhamento do processo"}</div>
+          <h1>{isAdmin && view === "admin" ? "Seus clientes" : `Olá, ${client.name.split(" ")[0]}`}</h1>
           <p>
-            {view === "cliente"
-              ? `Processo iniciado em ${client.startedAt} · Plantel: ${client.species}`
-              : "Selecione um cliente abaixo para ver e atualizar o andamento do processo dele."}
+            {isAdmin && view === "admin"
+              ? "Selecione um cliente abaixo para ver e atualizar o andamento do processo dele."
+              : `Processo iniciado em ${client.startedAt} · Plantel: ${client.species}`}
           </p>
         </div>
 
-        <div className="client-select">
-          {clients.map((c) => (
-            <button
-              key={c.id}
-              className={`client-pill ${selectedId === c.id ? "active" : ""}`}
-              onClick={() => setSelectedId(c.id)}
-            >
-              <span className="client-pill__dot" />
-              {view === "admin" ? c.name : c.name.split(" ")[0]}
-              <ChevronRight size={12} />
-            </button>
-          ))}
-        </div>
+        {isAdmin && (
+          <div className="client-select">
+            {clients.map((c) => (
+              <button
+                key={c.id}
+                className={`client-pill ${selectedId === c.id ? "active" : ""}`}
+                onClick={() => setSelectedId(c.id)}
+              >
+                <span className="client-pill__dot" />
+                {view === "admin" ? c.name : c.name.split(" ")[0]}
+                <ChevronRight size={12} />
+              </button>
+            ))}
+          </div>
+        )}
 
         <Timeline
           client={client}
-          editable={view === "admin"}
+          editable={isAdmin && view === "admin"}
           onAdvance={() =>
             updateClient(client.id, (c) => ({ ...c, stage: Math.min(c.stage + 1, STAGES.length - 1) }))
           }
