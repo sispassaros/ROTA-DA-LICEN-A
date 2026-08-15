@@ -174,9 +174,7 @@ function StageStamp({ status }) {
 function Timeline({ client, editable, onAdvance, onRetreat, onNote }) {
   return (
     <div className="timeline">
-      <svg className="timeline__spine" viewBox="0 0 24 640" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M12 0 C 18 60, 6 120, 12 180 S 18 300, 12 360 S 6 480, 12 540 S 18 600, 12 640" />
-      </svg>
+      <div className="timeline__spine" aria-hidden="true" />
 
       {STAGES.map((stage, i) => {
         const status = i < client.stage ? "done" : i === client.stage ? "current" : "pending";
@@ -245,20 +243,28 @@ function LoginScreen({ onPasswordLogin }) {
   return (
     <div className="app">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
         * { box-sizing: border-box; }
         .app {
-          --ink: #1b2e1f;
-          --paper: #f6f0de;
-          --paper-2: #ece0c0;
-          --gold: #e8a723;
-          --teal: #0e8c86;
-          --rust: #d64933;
-          --line: #ddceA0;
+          --ink: #0f172a;
+          --paper: #f8fafc;
+          --paper-2: #f1f5f9;
+          --surface: #ffffff;
+          --muted: #64748b;
+          --line: #e2e8f0;
+          --accent: #4f46e5;
+          --rust: #dc2626;
           font-family: 'Inter', sans-serif;
           background: var(--paper);
           color: var(--ink);
           min-height: 100vh;
+        }
+        .brand__mark {
+          width: 32px; height: 32px;
+          border-radius: 7px;
+          background: var(--accent);
+          color: #ffffff;
+          display: flex; align-items: center; justify-content: center;
         }
         .login-shell {
           min-height: 100vh;
@@ -270,22 +276,24 @@ function LoginScreen({ onPasswordLogin }) {
         .login-card {
           max-width: 380px;
           width: 100%;
-          background: #fbf8f0;
+          background: var(--surface);
           border: 1px solid var(--line);
-          border-radius: 14px;
+          border-radius: 10px;
           padding: 30px 26px;
           text-align: center;
+          box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
         }
         .login-card .brand__mark { margin: 0 auto 14px; }
         .login-card h1 {
-          font-family: 'Fraunces', serif;
-          font-weight: 500;
-          font-size: 22px;
+          font-family: 'Inter', sans-serif;
+          font-weight: 700;
+          font-size: 20px;
+          letter-spacing: -0.01em;
           margin: 0 0 6px;
         }
         .login-card p {
           font-size: 13.5px;
-          color: #5a6152;
+          color: var(--muted);
           margin: 0 0 20px;
           line-height: 1.5;
         }
@@ -295,21 +303,20 @@ function LoginScreen({ onPasswordLogin }) {
           font-size: 14px;
           padding: 11px 13px;
           border: 1px solid var(--line);
-          border-radius: 8px;
+          border-radius: 7px;
           background: var(--paper);
           margin-bottom: 12px;
         }
         .login-card button {
           width: 100%;
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: 12px;
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-          background: var(--ink);
-          color: var(--paper);
+          font-family: 'Inter', sans-serif;
+          font-weight: 500;
+          font-size: 13px;
+          background: var(--accent);
+          color: #ffffff;
           border: none;
           padding: 12px;
-          border-radius: 8px;
+          border-radius: 7px;
           cursor: pointer;
         }
         .login-card button:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -320,14 +327,13 @@ function LoginScreen({ onPasswordLogin }) {
         }
         .login-sent {
           font-size: 13.5px;
-          color: var(--teal);
+          color: var(--accent);
         }
         .login-toggle {
           background: transparent;
-          color: var(--teal) !important;
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: 11px;
-          text-transform: none;
+          color: var(--accent) !important;
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
           margin-top: 14px;
           border: none;
           text-decoration: underline;
@@ -574,17 +580,21 @@ export default function App() {
   return (
     <div className="app">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
         * { box-sizing: border-box; }
         .app {
-          --ink: #1b2e1f;
-          --paper: #f6f0de;
-          --paper-2: #ece0c0;
-          --gold: #e8a723;
-          --teal: #0e8c86;
-          --rust: #d64933;
-          --line: #ddceA0;
+          --ink: #0f172a;
+          --paper: #f8fafc;
+          --paper-2: #f1f5f9;
+          --surface: #ffffff;
+          --muted: #64748b;
+          --line: #e2e8f0;
+          --accent: #4f46e5;
+          --accent-soft: #eef2ff;
+          --success: #059669;
+          --success-soft: #ecfdf5;
+          --rust: #dc2626;
           font-family: 'Inter', sans-serif;
           background: var(--paper);
           color: var(--ink);
@@ -612,174 +622,181 @@ export default function App() {
           gap: 10px;
         }
         .brand__mark {
-          width: 34px; height: 34px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, var(--ink) 0%, var(--teal) 65%, var(--gold) 130%);
-          color: var(--paper);
+          width: 32px; height: 32px;
+          border-radius: 7px;
+          background: var(--accent);
+          color: #ffffff;
           display: flex; align-items: center; justify-content: center;
         }
         .brand__text {
-          font-family: 'Fraunces', serif;
-          font-size: 17px;
+          font-family: 'Inter', sans-serif;
+          font-weight: 600;
+          font-size: 15.5px;
           line-height: 1.1;
+          color: var(--ink);
         }
         .brand__text small {
           display: block;
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: 10px;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          color: var(--teal);
-          margin-top: 2px;
+          font-family: 'Inter', sans-serif;
+          font-weight: 400;
+          font-size: 11px;
+          letter-spacing: 0.02em;
+          color: var(--muted);
+          margin-top: 3px;
         }
 
         .switcher {
           display: flex;
-          background: var(--paper-2);
+          background: var(--surface);
           border: 1px solid var(--line);
-          border-radius: 999px;
+          border-radius: 8px;
           padding: 3px;
           gap: 2px;
         }
         .switcher button {
           border: none;
           background: transparent;
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: 11px;
-          letter-spacing: 0.04em;
-          text-transform: uppercase;
-          padding: 7px 14px;
-          border-radius: 999px;
+          font-family: 'Inter', sans-serif;
+          font-weight: 500;
+          font-size: 12.5px;
+          padding: 7px 13px;
+          border-radius: 6px;
           cursor: pointer;
-          color: var(--ink);
+          color: var(--muted);
           display: flex; align-items: center; gap: 6px;
           transition: background 0.15s ease, color 0.15s ease;
         }
         .switcher button.active {
           background: var(--ink);
-          color: var(--paper);
+          color: #ffffff;
         }
 
         .hero {
-          margin-bottom: 30px;
+          margin-bottom: 28px;
         }
         .hero__eyebrow {
-          font-family: 'IBM Plex Mono', monospace;
+          font-family: 'JetBrains Mono', monospace;
           font-size: 11px;
-          letter-spacing: 0.08em;
+          letter-spacing: 0.06em;
           text-transform: uppercase;
-          color: var(--gold);
+          color: var(--accent);
           margin-bottom: 6px;
+          font-weight: 500;
         }
         .hero h1 {
-          font-family: 'Fraunces', serif;
-          font-weight: 500;
-          font-size: 30px;
-          line-height: 1.15;
+          font-family: 'Inter', sans-serif;
+          font-weight: 700;
+          font-size: 26px;
+          letter-spacing: -0.01em;
+          line-height: 1.2;
           margin: 0 0 8px;
         }
         .hero p {
-          color: #55604f;
-          font-size: 14.5px;
+          color: var(--muted);
+          font-size: 14px;
           max-width: 52ch;
           line-height: 1.5;
           margin: 0;
         }
 
         .client-select {
-          margin: 18px 0 30px;
+          margin: 16px 0 28px;
           display: flex;
           flex-wrap: wrap;
           gap: 8px;
         }
         .client-pill {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: 11.5px;
+          font-family: 'Inter', sans-serif;
+          font-weight: 500;
+          font-size: 12.5px;
           border: 1px solid var(--line);
-          background: var(--paper-2);
-          border-radius: 8px;
+          background: var(--surface);
+          border-radius: 7px;
           padding: 8px 12px;
           cursor: pointer;
           display: flex;
           align-items: center;
           gap: 8px;
           color: var(--ink);
+          box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
         }
         .client-pill.active {
-          border-color: var(--ink);
-          background: var(--ink);
-          color: var(--paper);
+          border-color: var(--accent);
+          background: var(--accent);
+          color: #ffffff;
         }
         .client-pill__dot {
           width: 6px; height: 6px; border-radius: 50%;
-          background: var(--gold);
+          background: var(--accent);
+        }
+        .client-pill.active .client-pill__dot {
+          background: #ffffff;
         }
 
         .timeline {
           position: relative;
-          padding-left: 46px;
+          padding-left: 40px;
         }
         .timeline__spine {
           position: absolute;
-          left: 11px;
+          left: 15px;
           top: 4px;
           bottom: 4px;
-          width: 24px;
-          height: calc(100% - 8px);
-          stroke: var(--line);
-          stroke-width: 2;
-          fill: none;
+          width: 2px;
+          background: var(--line);
         }
 
         .checkpoint {
           position: relative;
-          padding-bottom: 26px;
+          padding-bottom: 20px;
         }
         .checkpoint:last-child { padding-bottom: 0; }
 
         .checkpoint__marker {
           position: absolute;
-          left: -46px;
+          left: -40px;
           top: 2px;
-          width: 24px; height: 24px;
+          width: 20px; height: 20px;
           border-radius: 50%;
           display: flex; align-items: center; justify-content: center;
-          background: var(--paper);
+          background: var(--surface);
           border: 2px solid var(--line);
-          color: #a8a08a;
+          color: var(--muted);
           z-index: 1;
         }
         .checkpoint--done .checkpoint__marker {
-          background: var(--teal);
-          border-color: var(--teal);
-          color: var(--paper);
+          background: var(--success);
+          border-color: var(--success);
+          color: #ffffff;
         }
         .checkpoint--current .checkpoint__marker {
-          background: var(--gold);
-          border-color: var(--gold);
-          color: var(--paper);
+          background: var(--accent);
+          border-color: var(--accent);
+          color: #ffffff;
         }
 
         .checkpoint__card {
-          background: #fbf8f0;
+          background: var(--surface);
           border: 1px solid var(--line);
-          border-radius: 12px;
+          border-radius: 8px;
           padding: 16px 18px;
+          box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
         }
         .checkpoint--current .checkpoint__card {
-          border-color: var(--gold);
-          box-shadow: 0 0 0 1px var(--gold) inset;
+          border-color: var(--accent);
+          box-shadow: 0 0 0 1px var(--accent);
         }
         .checkpoint--pending .checkpoint__card {
-          opacity: 0.6;
+          opacity: 0.65;
+          box-shadow: none;
         }
 
         .checkpoint__eyebrow {
-          font-family: 'IBM Plex Mono', monospace;
+          font-family: 'JetBrains Mono', monospace;
           font-size: 10px;
-          letter-spacing: 0.06em;
+          letter-spacing: 0.05em;
           text-transform: uppercase;
-          color: #8a8267;
+          color: var(--muted);
           margin-bottom: 4px;
         }
         .checkpoint__row {
@@ -790,14 +807,15 @@ export default function App() {
           flex-wrap: wrap;
         }
         .checkpoint__row h3 {
-          font-family: 'Fraunces', serif;
-          font-weight: 500;
-          font-size: 17px;
+          font-family: 'Inter', sans-serif;
+          font-weight: 600;
+          font-size: 15.5px;
           margin: 0;
+          color: var(--ink);
         }
         .checkpoint__detail {
-          font-size: 13.5px;
-          color: #5a6152;
+          font-size: 13px;
+          color: var(--muted);
           margin: 6px 0 0;
           line-height: 1.5;
         }
@@ -805,18 +823,18 @@ export default function App() {
           margin: 10px 0 0;
           font-size: 12.5px;
           background: var(--paper-2);
-          border-radius: 7px;
+          border-radius: 6px;
           padding: 8px 10px;
           display: flex;
           gap: 6px;
           align-items: flex-start;
-          color: #47523e;
+          color: var(--ink);
         }
         .checkpoint__notefield {
           width: 100%;
           margin-top: 10px;
-          border: 1px dashed var(--line);
-          border-radius: 7px;
+          border: 1px solid var(--line);
+          border-radius: 6px;
           background: var(--paper);
           font-family: 'Inter', sans-serif;
           font-size: 12.5px;
@@ -826,18 +844,17 @@ export default function App() {
         }
 
         .stamp {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: 9.5px;
-          letter-spacing: 0.05em;
-          text-transform: uppercase;
-          padding: 3px 8px;
-          border-radius: 4px;
-          border: 1px solid currentColor;
+          font-family: 'Inter', sans-serif;
+          font-weight: 600;
+          font-size: 10.5px;
+          letter-spacing: 0.02em;
+          padding: 3px 9px;
+          border-radius: 5px;
           white-space: nowrap;
         }
-        .stamp--done { color: var(--teal); }
-        .stamp--current { color: var(--gold); }
-        .stamp--pending { color: #a8a08a; }
+        .stamp--done { color: var(--success); background: var(--success-soft); }
+        .stamp--current { color: var(--accent); background: var(--accent-soft); }
+        .stamp--pending { color: var(--muted); background: var(--paper-2); }
 
         .stage-controls {
           display: flex;
@@ -846,25 +863,25 @@ export default function App() {
           padding-left: 0;
         }
         .stage-controls button {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: 11.5px;
-          text-transform: uppercase;
-          letter-spacing: 0.03em;
-          border: 1px solid var(--ink);
-          background: transparent;
+          font-family: 'Inter', sans-serif;
+          font-weight: 500;
+          font-size: 12.5px;
+          border: 1px solid var(--line);
+          background: var(--surface);
           color: var(--ink);
           padding: 9px 14px;
-          border-radius: 8px;
+          border-radius: 7px;
           cursor: pointer;
           display: flex; align-items: center; gap: 6px;
         }
         .stage-controls button:disabled {
-          opacity: 0.3;
+          opacity: 0.4;
           cursor: not-allowed;
         }
         .stage-controls__primary {
-          background: var(--ink) !important;
-          color: var(--paper) !important;
+          background: var(--accent) !important;
+          color: #ffffff !important;
+          border-color: var(--accent) !important;
         }
 
         .admin-summary {
@@ -874,26 +891,28 @@ export default function App() {
           margin-bottom: 26px;
         }
         .admin-summary__card {
-          background: var(--paper-2);
+          background: var(--surface);
           border: 1px solid var(--line);
-          border-radius: 10px;
-          padding: 12px 14px;
+          border-radius: 8px;
+          padding: 14px 16px;
+          box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
         }
         .admin-summary__card b {
-          font-family: 'Fraunces', serif;
+          font-family: 'Inter', sans-serif;
+          font-weight: 700;
           font-size: 22px;
           display: block;
         }
         .admin-summary__card span {
-          font-family: 'IBM Plex Mono', monospace;
+          font-family: 'JetBrains Mono', monospace;
           font-size: 10px;
           text-transform: uppercase;
-          letter-spacing: 0.05em;
-          color: #6b7362;
+          letter-spacing: 0.04em;
+          color: var(--muted);
         }
 
         @media (max-width: 520px) {
-          .hero h1 { font-size: 24px; }
+          .hero h1 { font-size: 22px; }
         }
 
         .app--center {
@@ -904,7 +923,7 @@ export default function App() {
         }
         .spin {
           animation: spin 0.9s linear infinite;
-          color: var(--gold);
+          color: var(--accent);
         }
         @keyframes spin {
           to { transform: rotate(360deg); }
@@ -913,15 +932,17 @@ export default function App() {
         .client-pill--new {
           background: transparent;
           border-style: dashed;
-          color: var(--teal);
+          color: var(--accent);
+          box-shadow: none;
         }
 
         .new-client {
-          background: #fbf8f0;
+          background: var(--surface);
           border: 1px solid var(--line);
-          border-radius: 12px;
+          border-radius: 8px;
           padding: 16px 18px;
           margin-bottom: 24px;
+          box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
         }
         .new-client__form {
           display: flex;
@@ -933,7 +954,7 @@ export default function App() {
           font-size: 13.5px;
           padding: 10px 12px;
           border: 1px solid var(--line);
-          border-radius: 7px;
+          border-radius: 6px;
           background: var(--paper);
         }
         .new-client__actions {
@@ -942,18 +963,19 @@ export default function App() {
           justify-content: flex-end;
         }
         .new-client__actions button {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: 11.5px;
-          text-transform: uppercase;
+          font-family: 'Inter', sans-serif;
+          font-weight: 500;
+          font-size: 12.5px;
           padding: 9px 14px;
-          border-radius: 7px;
+          border-radius: 6px;
           cursor: pointer;
-          border: 1px solid var(--ink);
-          background: var(--ink);
-          color: var(--paper);
+          border: 1px solid var(--accent);
+          background: var(--accent);
+          color: #ffffff;
         }
         .new-client__cancel {
           background: transparent !important;
+          border-color: var(--line) !important;
           color: var(--ink) !important;
         }
       `}</style>
@@ -989,11 +1011,11 @@ export default function App() {
               <span>processos ativos</span>
             </div>
             <div className="admin-summary__card">
-              <b style={{ color: "var(--teal)" }}>{clients.filter((c) => c.stage === STAGES.length - 1).length}</b>
+              <b style={{ color: "var(--success)" }}>{clients.filter((c) => c.stage === STAGES.length - 1).length}</b>
               <span>licenças liberadas</span>
             </div>
             <div className="admin-summary__card">
-              <b style={{ color: "var(--gold)" }}>{clients.filter((c) => c.stage === 3).length}</b>
+              <b style={{ color: "var(--accent)" }}>{clients.filter((c) => c.stage === 3).length}</b>
               <span>em análise no órgão</span>
             </div>
           </div>
