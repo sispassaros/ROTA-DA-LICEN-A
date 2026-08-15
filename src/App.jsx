@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Feather, Check, Clock, Circle, ChevronRight, User, LayoutGrid, StickyNote, Plus, Minus, Loader2, UserPlus, X } from "lucide-react";
+import { Feather, Check, Clock, Circle, ChevronRight, User, LayoutGrid, StickyNote, Plus, Minus, Loader2, UserPlus, X, Paperclip } from "lucide-react";
 
 const SUPABASE_URL = "https://xoxdqbdmryhcqxunvpxd.supabase.co";
 const SUPABASE_KEY = "sb_publishable_mcE5RKGiKNhQLrfgEDdzdg_enaeizB6";
@@ -122,6 +122,29 @@ function extractSessionFromUrl() {
   return session;
 }
 
+async function uploadAttachment(file, clientId, stageIndex, accessToken) {
+  const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+  const path = `${clientId}/${stageIndex}-${Date.now()}-${safeName}`;
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/attachments/${path}`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": file.type,
+    },
+    body: file,
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`${res.status}: ${text}`);
+  }
+  return {
+    name: file.name,
+    type: file.type,
+    url: `${SUPABASE_URL}/storage/v1/object/public/attachments/${path}`,
+  };
+}
+
 function rowToClient(row) {
   return {
     id: row.id,
@@ -131,6 +154,7 @@ function rowToClient(row) {
     stage: row.stage,
     startedAt: row.started_at,
     notes: row.notes || {},
+    attachments: row.attachments || {},
     deadline: row.deadline || "",
     outcome: row.outcome || null,
   };
@@ -185,8 +209,26 @@ function getStageStatus(i, client) {
   return "pending";
 }
 
-function Timeline({ client, editable, onAdvance, onRetreat, onNote, onOutcome }) {
+function Timeline({ client, editable, onAdvance, onRetreat, onNote, onOutcome, onAttach, onRemoveAttachment }) {
   const lastIndex = STAGES.length - 1;
+  const [uploadingIndex, setUploadingIndex] = useState(null);
+  const [uploadError, setUploadError] = useState(null);
+
+  async function handleFileChange(i, e) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUploadError(null);
+    setUploadingIndex(i);
+    try {
+      await onAttach(i, file);
+    } catch (err) {
+      setUploadError(err.message);
+    } finally {
+      setUploadingIndex(null);
+    }
+  }
+
   return (
     <div className="timeline">
       <div className="timeline__spine" aria-hidden="true" />
@@ -194,6 +236,7 @@ function Timeline({ client, editable, onAdvance, onRetreat, onNote, onOutcome })
       {STAGES.map((stage, i) => {
         const status = getStageStatus(i, client);
         const isLastReached = i === lastIndex && client.stage === lastIndex;
+        const stageAttachments = client.attachments?.[i] || [];
         return (
           <div className={`checkpoint checkpoint--${status}`} key={stage.key}>
             <div className="checkpoint__marker">
@@ -224,6 +267,51 @@ function Timeline({ client, editable, onAdvance, onRetreat, onNote, onOutcome })
                 />
               ) : (
                 client.notes[i] ? <p className="checkpoint__note"><StickyNote size={13} /> {client.notes[i]}</p> : null
+              )}
+
+              {stageAttachments.length > 0 && (
+                <div className="attachments">
+                  {stageAttachments.map((a, ai) => (
+                    <div className="attachments__item" key={ai}>
+                      <a href={a.url} target="_blank" rel="noopener noreferrer">
+                        <Paperclip size={12} /> {a.name}
+                      </a>
+                      {editable && (
+                        <button
+                          type="button"
+                          className="attachments__remove"
+                          onClick={() => onRemoveAttachment(i, ai)}
+                          title="Remover anexo"
+                        >
+                          <X size={11} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {editable && (
+                <label className="attachments__upload">
+                  {uploadingIndex === i ? (
+                    <>
+                      <Loader2 size={12} className="spin" /> Enviando…
+                    </>
+                  ) : (
+                    <>
+                      <Paperclip size={12} /> Anexar PDF ou imagem
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,application/pdf,image/jpeg"
+                    onChange={(e) => handleFileChange(i, e)}
+                    disabled={uploadingIndex !== null}
+                  />
+                </label>
+              )}
+              {editable && uploadingIndex === i && uploadError && (
+                <p className="login-error">Não foi possível enviar: {uploadError}</p>
               )}
 
               {isLastReached && editable && (
@@ -691,6 +779,36 @@ export default function App() {
     }
   }
 
+  async function attachFile(stageIndex, file) {
+    const uploaded = await uploadAttachment(file, client.id, stageIndex, session.accessToken);
+    const nextAttachments = {
+      ...client.attachments,
+      [stageIndex]: [...(client.attachments?.[stageIndex] || []), uploaded],
+    };
+    setClients((prev) => prev.map((c) => (c.id === client.id ? { ...c, attachments: nextAttachments } : c)));
+    await supaFetch(
+      `clients?id=eq.${client.id}`,
+      { method: "PATCH", body: JSON.stringify({ attachments: nextAttachments }) },
+      session.accessToken
+    );
+  }
+
+  async function removeAttachment(stageIndex, attachmentIndex) {
+    const list = [...(client.attachments?.[stageIndex] || [])];
+    list.splice(attachmentIndex, 1);
+    const nextAttachments = { ...client.attachments, [stageIndex]: list };
+    setClients((prev) => prev.map((c) => (c.id === client.id ? { ...c, attachments: nextAttachments } : c)));
+    try {
+      await supaFetch(
+        `clients?id=eq.${client.id}`,
+        { method: "PATCH", body: JSON.stringify({ attachments: nextAttachments }) },
+        session.accessToken
+      );
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
   function logout() {
     localStorage.removeItem(SESSION_STORAGE_KEY);
     setSession(null);
@@ -1081,6 +1199,59 @@ export default function App() {
           min-height: 40px;
         }
 
+        .attachments {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          margin-top: 10px;
+        }
+        .attachments__item {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .attachments__item a {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 12.5px;
+          color: var(--accent);
+          background: var(--accent-soft);
+          border-radius: 6px;
+          padding: 6px 10px;
+          text-decoration: none;
+          flex: 1;
+        }
+        .attachments__remove {
+          border: none;
+          background: var(--paper-2);
+          color: var(--muted);
+          border-radius: 6px;
+          width: 24px;
+          height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          flex-shrink: 0;
+        }
+        .attachments__upload {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          margin-top: 10px;
+          font-size: 12px;
+          font-weight: 500;
+          color: var(--accent);
+          border: 1px dashed var(--accent);
+          border-radius: 6px;
+          padding: 7px 12px;
+          cursor: pointer;
+        }
+        .attachments__upload input {
+          display: none;
+        }
+
         .stamp {
           font-family: 'Inter', sans-serif;
           font-weight: 600;
@@ -1446,6 +1617,8 @@ export default function App() {
             updateClient(client.id, (c) => ({ ...c, notes: { ...c.notes, [i]: text } }))
           }
           onOutcome={(outcome) => updateClient(client.id, (c) => ({ ...c, outcome }))}
+          onAttach={attachFile}
+          onRemoveAttachment={removeAttachment}
         />
       </div>
     </div>
