@@ -341,29 +341,7 @@ function LoginScreen({ onPasswordLogin }) {
           text-decoration: underline;
           cursor: pointer;
         }
-
-        .bg-birds {
-          position: fixed;
-          inset: 0;
-          pointer-events: none;
-          overflow: hidden;
-          z-index: 0;
-        }
-        .bg-bird {
-          position: absolute;
-          color: var(--accent);
-          opacity: 0.05;
-        }
-        .bg-bird--1 { width: 340px; height: 340px; top: -60px; right: -80px; }
-        .bg-bird--2 { width: 260px; height: 260px; bottom: 40px; left: -70px; transform: scaleX(-1) rotate(-8deg); color: var(--success, #2f7a45); }
-        .bg-bird--3 { width: 220px; height: 220px; bottom: -60px; right: 8%; opacity: 0.045; }
-        @media (max-width: 640px) {
-          .bg-bird--1 { width: 220px; height: 220px; }
-          .bg-bird--2 { width: 170px; height: 170px; }
-          .bg-bird--3 { width: 150px; height: 150px; }
-        }
       `}</style>
-      <BirdWatermarks />
       <div className="login-shell">
         <div className="login-card">
           <div className="brand__mark" style={{ display: "inline-flex" }}><Feather size={17} /></div>
@@ -462,39 +440,33 @@ function NewClientForm({ onCreated, onClose, accessToken }) {
   );
 }
 
-function BirdWatermarks() {
+const BIRD_PHOTOS = [
+  {
+    name: "Trinca-ferro",
+    url: "https://commons.wikimedia.org/wiki/Special:FilePath/Flickr_-_Dario_Sanches_-_TRINCA-FERRO-VERDADEIRO_%28Saltator_similis%29.jpg?width=600",
+  },
+  {
+    name: "Coleirinho",
+    url: "https://commons.wikimedia.org/wiki/Special:FilePath/Flickr_-_Dario_Sanches_-_COLEIRINHO_%28Sporophila_caerulescens%29_%286%29.jpg?width=600",
+  },
+  {
+    name: "Curió",
+    url: "https://commons.wikimedia.org/wiki/Special:FilePath/Flickr_-_Dario_Sanches_-_CURI%C3%93_%28Sporophila_angolensis_-_Oryzoborus_angolensis%29.jpg?width=600",
+  },
+];
+
+function BirdStrip() {
   return (
-    <div className="bg-birds" aria-hidden="true">
-      <svg className="bg-bird bg-bird--1" viewBox="0 0 200 200" fill="none">
-        <path
-          d="M40 150 Q35 120 55 105 Q50 85 70 75 Q75 55 100 50 Q95 40 105 32 Q120 28 130 40 Q145 38 150 52 Q165 55 165 72 Q180 80 175 98 Q185 112 172 125 Q175 145 155 150 Q150 165 130 162 Q120 175 100 168 Q80 178 65 165 Q45 168 40 150 Z M100 50 Q108 45 118 48"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <circle cx="128" cy="55" r="3" fill="currentColor" />
-      </svg>
-      <svg className="bg-bird bg-bird--2" viewBox="0 0 200 200" fill="none">
-        <path
-          d="M30 160 Q28 130 48 118 Q45 95 68 88 Q72 68 95 62 Q90 50 102 42 Q118 36 130 48 Q148 44 155 60 Q172 62 174 80 Q188 90 180 108 Q190 122 175 133 Q180 152 158 155 Q155 170 133 165 Q122 178 102 170 Q82 180 65 168 Q45 172 30 160 Z M95 62 Q104 56 115 60"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <circle cx="122" cy="50" r="3" fill="currentColor" />
-      </svg>
-      <svg className="bg-bird bg-bird--3" viewBox="0 0 200 200" fill="none">
-        <path
-          d="M35 145 Q30 118 50 105 Q47 85 68 77 Q73 58 96 52 Q90 42 100 34 Q115 29 126 40 Q142 37 150 50 Q166 53 168 69 Q182 78 175 94 Q186 107 172 119 Q177 137 156 141 Q152 155 132 151 Q122 163 103 156 Q84 166 68 154 Q48 157 35 145 Z M96 52 Q104 47 114 50"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <circle cx="124" cy="47" r="3" fill="currentColor" />
-      </svg>
+    <div className="bird-strip">
+      <div className="bird-strip__row">
+        {BIRD_PHOTOS.map((b) => (
+          <div className="bird-strip__item" key={b.name}>
+            <img src={b.url} alt={b.name} loading="lazy" />
+            <span>{b.name}</span>
+          </div>
+        ))}
+      </div>
+      <p className="bird-strip__credit">Fotos: Dario Sanches, CC BY-SA 2.0, via Wikimedia Commons</p>
     </div>
   );
 }
@@ -1047,27 +1019,52 @@ export default function App() {
           overflow: hidden;
           z-index: 0;
         }
-        .bg-bird {
-          position: absolute;
-          color: var(--accent);
-          opacity: 0.05;
-        }
-        .bg-bird--1 { width: 340px; height: 340px; top: -60px; right: -80px; }
-        .bg-bird--2 { width: 260px; height: 260px; bottom: 40px; left: -70px; transform: scaleX(-1) rotate(-8deg); color: var(--success); }
-        .bg-bird--3 { width: 220px; height: 220px; bottom: -60px; right: 8%; opacity: 0.045; }
 
         .shell { position: relative; z-index: 1; }
 
-        @media (max-width: 640px) {
-          .bg-bird--1 { width: 220px; height: 220px; }
-          .bg-bird--2 { width: 170px; height: 170px; }
-          .bg-bird--3 { width: 150px; height: 150px; }
+        .bird-strip {
+          margin-bottom: 22px;
+        }
+        .bird-strip__row {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 8px;
+        }
+        .bird-strip__item {
+          position: relative;
+          border-radius: 8px;
+          overflow: hidden;
+          border: 1px solid var(--line);
+          height: 96px;
+          box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+        }
+        .bird-strip__item img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+        .bird-strip__item span {
+          position: absolute;
+          left: 0; right: 0; bottom: 0;
+          background: linear-gradient(to top, rgba(15,23,42,0.65), transparent);
+          color: #ffffff;
+          font-size: 10.5px;
+          font-weight: 500;
+          padding: 5px 8px 4px;
+        }
+        .bird-strip__credit {
+          margin: 6px 2px 0;
+          font-size: 10px;
+          color: var(--muted);
+        }
+        @media (max-width: 520px) {
+          .bird-strip__item { height: 74px; }
         }
       `}</style>
 
-      <BirdWatermarks />
-
       <div className="shell">
+        <BirdStrip />
         <div className="topbar">
           <div className="brand">
             <div className="brand__mark"><Feather size={17} /></div>
