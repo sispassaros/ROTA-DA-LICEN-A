@@ -294,7 +294,7 @@ function LoginScreen({ onPasswordLogin }) {
           --paper: #f6f0de;
           --paper-2: #ece0c0;
           --surface: #fbf8f0;
-          --muted: #6b7362;
+          --muted: #4a5142;
           --line: #ddc9a0;
           --accent: #1b4b91;
           --rust: #c23b2e;
@@ -753,7 +753,7 @@ export default function App() {
           --paper: #f6f0de;
           --paper-2: #ece0c0;
           --surface: #fbf8f0;
-          --muted: #6b7362;
+          --muted: #4a5142;
           --line: #ddc9a0;
           --accent: #1b4b91;
           --accent-soft: #e4ebf6;
