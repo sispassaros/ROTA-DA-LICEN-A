@@ -341,7 +341,77 @@ function LoginScreen({ onPasswordLogin }) {
           text-decoration: underline;
           cursor: pointer;
         }
+
+        .side-birds {
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          z-index: 0;
+          display: none;
+        }
+        .side-birds__panel {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: 260px;
+          overflow: hidden;
+        }
+        .side-birds__panel--left { left: 0; }
+        .side-birds__panel--right {
+          right: 0;
+          display: flex;
+          flex-direction: column;
+        }
+        .side-birds__panel--left img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          filter: saturate(0.92);
+        }
+        .side-birds__half { flex: 1; overflow: hidden; }
+        .side-birds__half img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          filter: saturate(0.92);
+        }
+        .side-birds__panel--left::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to right, transparent 0%, transparent 45%, var(--paper) 92%);
+        }
+        .side-birds__panel--right::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to left, transparent 0%, transparent 45%, var(--paper) 92%);
+        }
+        .side-birds__credit {
+          position: absolute;
+          bottom: 14px;
+          left: 14px;
+          font-size: 10px;
+          font-weight: 500;
+          color: var(--surface);
+          text-shadow: 0 1px 3px rgba(15, 23, 42, 0.5);
+          z-index: 1;
+        }
+        .side-birds__credit--right { left: auto; right: 14px; }
+        .side-birds__source {
+          position: absolute;
+          bottom: -2px;
+          left: 50%;
+          transform: translateX(-50%);
+          font-size: 9.5px;
+          color: var(--muted);
+          white-space: nowrap;
+        }
+        @media (min-width: 1180px) {
+          .side-birds { display: block; }
+        }
       `}</style>
+      <SideBirds />
       <div className="login-shell">
         <div className="login-card">
           <div className="brand__mark" style={{ display: "inline-flex" }}><Feather size={17} /></div>
@@ -455,18 +525,25 @@ const BIRD_PHOTOS = [
   },
 ];
 
-function BirdStrip() {
+function SideBirds() {
   return (
-    <div className="bird-strip">
-      <div className="bird-strip__row">
-        {BIRD_PHOTOS.map((b) => (
-          <div className="bird-strip__item" key={b.name}>
-            <img src={b.url} alt={b.name} loading="lazy" />
-            <span>{b.name}</span>
-          </div>
-        ))}
+    <div className="side-birds" aria-hidden="true">
+      <div className="side-birds__panel side-birds__panel--left">
+        <img src={BIRD_PHOTOS[0].url} alt="" />
+        <span className="side-birds__credit">{BIRD_PHOTOS[0].name}</span>
       </div>
-      <p className="bird-strip__credit">Fotos: Dario Sanches, CC BY-SA 2.0, via Wikimedia Commons</p>
+      <div className="side-birds__panel side-birds__panel--right">
+        <div className="side-birds__half">
+          <img src={BIRD_PHOTOS[1].url} alt="" />
+        </div>
+        <div className="side-birds__half">
+          <img src={BIRD_PHOTOS[2].url} alt="" />
+        </div>
+        <span className="side-birds__credit side-birds__credit--right">
+          {BIRD_PHOTOS[1].name} · {BIRD_PHOTOS[2].name}
+        </span>
+      </div>
+      <p className="side-birds__source">Fotos: Dario Sanches, CC BY-SA 2.0, via Wikimedia Commons</p>
     </div>
   );
 }
@@ -1022,49 +1099,82 @@ export default function App() {
 
         .shell { position: relative; z-index: 1; }
 
-        .bird-strip {
-          margin-bottom: 22px;
+        .side-birds {
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          z-index: 0;
+          display: none;
         }
-        .bird-strip__row {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 8px;
-        }
-        .bird-strip__item {
-          position: relative;
-          border-radius: 8px;
+        .side-birds__panel {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: 260px;
           overflow: hidden;
-          border: 1px solid var(--line);
-          height: 96px;
-          box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
         }
-        .bird-strip__item img {
+        .side-birds__panel--left { left: 0; }
+        .side-birds__panel--right {
+          right: 0;
+          display: flex;
+          flex-direction: column;
+        }
+        .side-birds__panel--left img {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          display: block;
+          filter: saturate(0.92);
         }
-        .bird-strip__item span {
+        .side-birds__half {
+          flex: 1;
+          overflow: hidden;
+        }
+        .side-birds__half img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          filter: saturate(0.92);
+        }
+        .side-birds__panel--left::after {
+          content: "";
           position: absolute;
-          left: 0; right: 0; bottom: 0;
-          background: linear-gradient(to top, rgba(15,23,42,0.65), transparent);
-          color: #ffffff;
-          font-size: 10.5px;
-          font-weight: 500;
-          padding: 5px 8px 4px;
+          inset: 0;
+          background: linear-gradient(to right, transparent 0%, transparent 45%, var(--paper) 92%);
         }
-        .bird-strip__credit {
-          margin: 6px 2px 0;
+        .side-birds__panel--right::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to left, transparent 0%, transparent 45%, var(--paper) 92%);
+        }
+        .side-birds__credit {
+          position: absolute;
+          bottom: 14px;
+          left: 14px;
           font-size: 10px;
-          color: var(--muted);
+          font-weight: 500;
+          color: var(--surface);
+          text-shadow: 0 1px 3px rgba(15, 23, 42, 0.5);
+          z-index: 1;
         }
-        @media (max-width: 520px) {
-          .bird-strip__item { height: 74px; }
+        .side-birds__credit--right { left: auto; right: 14px; }
+        .side-birds__source {
+          position: absolute;
+          bottom: -2px;
+          left: 50%;
+          transform: translateX(-50%);
+          font-size: 9.5px;
+          color: var(--muted);
+          white-space: nowrap;
+        }
+        @media (min-width: 1180px) {
+          .side-birds { display: block; }
         }
       `}</style>
 
+      <SideBirds />
+
       <div className="shell">
-        <BirdStrip />
         <div className="topbar">
           <div className="brand">
             <div className="brand__mark"><Feather size={17} /></div>
