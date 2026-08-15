@@ -195,6 +195,21 @@ function LoginScreen({ onSent }) {
   return (
     <div className="app">
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+        * { box-sizing: border-box; }
+        .app {
+          --ink: #1b2e1f;
+          --paper: #f6f0de;
+          --paper-2: #ece0c0;
+          --gold: #e8a723;
+          --teal: #0e8c86;
+          --rust: #d64933;
+          --line: #ddceA0;
+          font-family: 'Inter', sans-serif;
+          background: var(--paper);
+          color: var(--ink);
+          min-height: 100vh;
+        }
         .login-shell {
           min-height: 100vh;
           display: flex;
@@ -451,13 +466,13 @@ export default function App() {
 
         * { box-sizing: border-box; }
         .app {
-          --ink: #1e2b21;
-          --paper: #f3eee0;
-          --paper-2: #ece4d0;
-          --gold: #a97c25;
-          --teal: #3e6259;
-          --rust: #8c3b2e;
-          --line: #d8cdae;
+          --ink: #1b2e1f;
+          --paper: #f6f0de;
+          --paper-2: #ece0c0;
+          --gold: #e8a723;
+          --teal: #0e8c86;
+          --rust: #d64933;
+          --line: #ddceA0;
           font-family: 'Inter', sans-serif;
           background: var(--paper);
           color: var(--ink);
@@ -487,7 +502,7 @@ export default function App() {
         .brand__mark {
           width: 34px; height: 34px;
           border-radius: 50%;
-          background: var(--ink);
+          background: linear-gradient(135deg, var(--ink) 0%, var(--teal) 65%, var(--gold) 130%);
           color: var(--paper);
           display: flex; align-items: center; justify-content: center;
         }
@@ -858,15 +873,15 @@ export default function App() {
         {isAdmin && view === "admin" && (
           <div className="admin-summary">
             <div className="admin-summary__card">
-              <b>{clients.length}</b>
+              <b style={{ color: "var(--ink)" }}>{clients.length}</b>
               <span>processos ativos</span>
             </div>
             <div className="admin-summary__card">
-              <b>{clients.filter((c) => c.stage === STAGES.length - 1).length}</b>
+              <b style={{ color: "var(--teal)" }}>{clients.filter((c) => c.stage === STAGES.length - 1).length}</b>
               <span>licenças liberadas</span>
             </div>
             <div className="admin-summary__card">
-              <b>{clients.filter((c) => c.stage === 3).length}</b>
+              <b style={{ color: "var(--gold)" }}>{clients.filter((c) => c.stage === 3).length}</b>
               <span>em análise no órgão</span>
             </div>
           </div>
