@@ -51,6 +51,17 @@ async function requestMagicLink(email) {
   }
 }
 
+async function signupUser(email, password) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+    method: "POST",
+    headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error_description || data?.msg || `${res.status}`);
+  return data;
+}
+
 async function passwordLogin(email, password) {
   const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
     method: "POST",
@@ -211,29 +222,22 @@ function Timeline({ client, editable, onAdvance, onRetreat, onNote }) {
   );
 }
 
-function LoginScreen({ onSent, onPasswordLogin }) {
+function LoginScreen({ onPasswordLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [asAdmin, setAsAdmin] = useState(false);
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState(null);
 
   async function submit(e) {
     e.preventDefault();
-    if (!email) return;
+    if (!email || !password) return;
     setStatus("sending");
     setError(null);
     try {
-      if (asAdmin) {
-        const session = await passwordLogin(email.trim(), password);
-        onPasswordLogin(session);
-      } else {
-        await requestMagicLink(email.trim());
-        setStatus("sent");
-        onSent?.();
-      }
+      const session = await passwordLogin(email.trim(), password);
+      onPasswordLogin(session);
     } catch (e) {
-      setError(e.message);
+      setError("e-mail ou senha incorretos");
       setStatus("idle");
     }
   }
@@ -334,11 +338,9 @@ function LoginScreen({ onSent, onPasswordLogin }) {
         <div className="login-card">
           <div className="brand__mark" style={{ display: "inline-flex" }}><Feather size={17} /></div>
           <h1>Rota da Licença</h1>
-          {status === "sent" ? (
-            <p className="login-sent">Enviamos um link de acesso para <b>{email}</b>. Abra seu e-mail e clique nele para entrar.</p>
-          ) : (
+          {status === "sent" ? null : (
             <>
-              <p>{asAdmin ? "Entre com seu e-mail e senha de administrador." : "Digite seu e-mail para receber um link de acesso ao seu processo."}</p>
+              <p>Digite seu e-mail e senha para acessar seu processo.</p>
               <form onSubmit={submit}>
                 <input
                   type="email"
@@ -347,23 +349,18 @@ function LoginScreen({ onSent, onPasswordLogin }) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
-                {asAdmin && (
-                  <input
-                    type="password"
-                    required
-                    placeholder="Senha"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                )}
+                <input
+                  type="password"
+                  required
+                  placeholder="Senha"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
                 <button type="submit" disabled={status === "sending"}>
-                  {status === "sending" ? "Entrando…" : asAdmin ? "Entrar" : "Enviar link de acesso"}
+                  {status === "sending" ? "Entrando…" : "Entrar"}
                 </button>
               </form>
               {error && <p className="login-error">Não foi possível entrar: {error}</p>}
-              <button type="button" className="login-toggle" onClick={() => setAsAdmin((v) => !v)}>
-                {asAdmin ? "Sou cliente" : "Sou administrador"}
-              </button>
             </>
           )}
         </div>
@@ -376,6 +373,7 @@ function NewClientForm({ onCreated, onClose, accessToken }) {
   const [name, setName] = useState("");
   const [species, setSpecies] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
@@ -384,6 +382,7 @@ function NewClientForm({ onCreated, onClose, accessToken }) {
     setSaving(true);
     setError(null);
     try {
+      await signupUser(email.trim(), password);
       const today = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
       const [row] = await supaFetch(
         "clients",
@@ -414,6 +413,14 @@ function NewClientForm({ onCreated, onClose, accessToken }) {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Senha de acesso (para repassar ao cliente)"
+          required
+          minLength={6}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
         <div className="new-client__actions">
           <button type="button" onClick={onClose} className="new-client__cancel">Cancelar</button>
