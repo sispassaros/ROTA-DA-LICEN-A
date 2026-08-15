@@ -401,10 +401,6 @@ function LoginScreen({ onPasswordLogin }) {
           object-fit: cover;
           filter: saturate(0.9);
         }
-        .bg-split__img--top {
-          -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 62%);
-          mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 62%);
-        }
         .bg-split::after {
           content: "";
           position: absolute;
@@ -582,9 +578,8 @@ const BIRD_PHOTOS = [
 function SideBirds() {
   return (
     <div className="bg-split" aria-hidden="true">
-      <img className="bg-split__img bg-split__img--bottom" src={BIRD_PHOTOS[2].url} alt="" />
-      <img className="bg-split__img bg-split__img--top" src={BIRD_PHOTOS[0].url} alt="" />
-      <p className="bg-split__credit">Fotos: Dario Sanches, CC BY-SA 2.0, via Wikimedia Commons</p>
+      <img className="bg-split__img" src={BIRD_PHOTOS[0].url} alt="" />
+      <p className="bg-split__credit">Foto: Dario Sanches, CC BY-SA 2.0, via Wikimedia Commons</p>
     </div>
   );
 }
@@ -1278,10 +1273,6 @@ export default function App() {
           height: 100%;
           object-fit: cover;
           filter: saturate(0.9);
-        }
-        .bg-split__img--top {
-          -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 62%);
-          mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 62%);
         }
         .bg-split::after {
           content: "";
