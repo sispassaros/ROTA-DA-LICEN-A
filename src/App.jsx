@@ -357,19 +357,8 @@ function LoginScreen({ onPasswordLogin }) {
           overflow: hidden;
         }
         .side-birds__panel--left { left: 0; }
-        .side-birds__panel--right {
-          right: 0;
-          display: flex;
-          flex-direction: column;
-        }
-        .side-birds__panel--left img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          filter: saturate(0.92);
-        }
-        .side-birds__half { flex: 1; overflow: hidden; }
-        .side-birds__half img {
+        .side-birds__panel--right { right: 0; }
+        .side-birds__panel img {
           width: 100%;
           height: 100%;
           object-fit: cover;
@@ -533,15 +522,8 @@ function SideBirds() {
         <span className="side-birds__credit">{BIRD_PHOTOS[0].name}</span>
       </div>
       <div className="side-birds__panel side-birds__panel--right">
-        <div className="side-birds__half">
-          <img src={BIRD_PHOTOS[1].url} alt="" />
-        </div>
-        <div className="side-birds__half">
-          <img src={BIRD_PHOTOS[2].url} alt="" />
-        </div>
-        <span className="side-birds__credit side-birds__credit--right">
-          {BIRD_PHOTOS[1].name} · {BIRD_PHOTOS[2].name}
-        </span>
+        <img src={BIRD_PHOTOS[2].url} alt="" />
+        <span className="side-birds__credit side-birds__credit--right">{BIRD_PHOTOS[2].name}</span>
       </div>
       <p className="side-birds__source">Fotos: Dario Sanches, CC BY-SA 2.0, via Wikimedia Commons</p>
     </div>
@@ -1114,22 +1096,8 @@ export default function App() {
           overflow: hidden;
         }
         .side-birds__panel--left { left: 0; }
-        .side-birds__panel--right {
-          right: 0;
-          display: flex;
-          flex-direction: column;
-        }
-        .side-birds__panel--left img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          filter: saturate(0.92);
-        }
-        .side-birds__half {
-          flex: 1;
-          overflow: hidden;
-        }
-        .side-birds__half img {
+        .side-birds__panel--right { right: 0; }
+        .side-birds__panel img {
           width: 100%;
           height: 100%;
           object-fit: cover;
