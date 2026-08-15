@@ -272,6 +272,8 @@ function LoginScreen({ onPasswordLogin }) {
           align-items: center;
           justify-content: center;
           padding: 24px;
+          position: relative;
+          z-index: 1;
         }
         .login-card {
           max-width: 380px;
@@ -339,7 +341,29 @@ function LoginScreen({ onPasswordLogin }) {
           text-decoration: underline;
           cursor: pointer;
         }
+
+        .bg-birds {
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          overflow: hidden;
+          z-index: 0;
+        }
+        .bg-bird {
+          position: absolute;
+          color: var(--accent);
+          opacity: 0.05;
+        }
+        .bg-bird--1 { width: 340px; height: 340px; top: -60px; right: -80px; }
+        .bg-bird--2 { width: 260px; height: 260px; bottom: 40px; left: -70px; transform: scaleX(-1) rotate(-8deg); color: var(--success, #2f7a45); }
+        .bg-bird--3 { width: 220px; height: 220px; bottom: -60px; right: 8%; opacity: 0.045; }
+        @media (max-width: 640px) {
+          .bg-bird--1 { width: 220px; height: 220px; }
+          .bg-bird--2 { width: 170px; height: 170px; }
+          .bg-bird--3 { width: 150px; height: 150px; }
+        }
       `}</style>
+      <BirdWatermarks />
       <div className="login-shell">
         <div className="login-card">
           <div className="brand__mark" style={{ display: "inline-flex" }}><Feather size={17} /></div>
@@ -434,6 +458,43 @@ function NewClientForm({ onCreated, onClose, accessToken }) {
         </div>
         {error && <p className="login-error">Não foi possível cadastrar: {error}</p>}
       </form>
+    </div>
+  );
+}
+
+function BirdWatermarks() {
+  return (
+    <div className="bg-birds" aria-hidden="true">
+      <svg className="bg-bird bg-bird--1" viewBox="0 0 200 200" fill="none">
+        <path
+          d="M40 150 Q35 120 55 105 Q50 85 70 75 Q75 55 100 50 Q95 40 105 32 Q120 28 130 40 Q145 38 150 52 Q165 55 165 72 Q180 80 175 98 Q185 112 172 125 Q175 145 155 150 Q150 165 130 162 Q120 175 100 168 Q80 178 65 165 Q45 168 40 150 Z M100 50 Q108 45 118 48"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="128" cy="55" r="3" fill="currentColor" />
+      </svg>
+      <svg className="bg-bird bg-bird--2" viewBox="0 0 200 200" fill="none">
+        <path
+          d="M30 160 Q28 130 48 118 Q45 95 68 88 Q72 68 95 62 Q90 50 102 42 Q118 36 130 48 Q148 44 155 60 Q172 62 174 80 Q188 90 180 108 Q190 122 175 133 Q180 152 158 155 Q155 170 133 165 Q122 178 102 170 Q82 180 65 168 Q45 172 30 160 Z M95 62 Q104 56 115 60"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="122" cy="50" r="3" fill="currentColor" />
+      </svg>
+      <svg className="bg-bird bg-bird--3" viewBox="0 0 200 200" fill="none">
+        <path
+          d="M35 145 Q30 118 50 105 Q47 85 68 77 Q73 58 96 52 Q90 42 100 34 Q115 29 126 40 Q142 37 150 50 Q166 53 168 69 Q182 78 175 94 Q186 107 172 119 Q177 137 156 141 Q152 155 132 151 Q122 163 103 156 Q84 166 68 154 Q48 157 35 145 Z M96 52 Q104 47 114 50"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="124" cy="47" r="3" fill="currentColor" />
+      </svg>
     </div>
   );
 }
@@ -978,7 +1039,33 @@ export default function App() {
           border-color: var(--line) !important;
           color: var(--ink) !important;
         }
+
+        .bg-birds {
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          overflow: hidden;
+          z-index: 0;
+        }
+        .bg-bird {
+          position: absolute;
+          color: var(--accent);
+          opacity: 0.05;
+        }
+        .bg-bird--1 { width: 340px; height: 340px; top: -60px; right: -80px; }
+        .bg-bird--2 { width: 260px; height: 260px; bottom: 40px; left: -70px; transform: scaleX(-1) rotate(-8deg); color: var(--success); }
+        .bg-bird--3 { width: 220px; height: 220px; bottom: -60px; right: 8%; opacity: 0.045; }
+
+        .shell { position: relative; z-index: 1; }
+
+        @media (max-width: 640px) {
+          .bg-bird--1 { width: 220px; height: 220px; }
+          .bg-bird--2 { width: 170px; height: 170px; }
+          .bg-bird--3 { width: 150px; height: 150px; }
+        }
       `}</style>
+
+      <BirdWatermarks />
 
       <div className="shell">
         <div className="topbar">
