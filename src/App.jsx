@@ -51,6 +51,38 @@ async function requestMagicLink(email) {
   }
 }
 
+async function passwordLogin(email, password) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+    method: "POST",
+    headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error_description || data?.msg || `${res.status}`);
+  return tokensToSession(data);
+}
+
+async function refreshSession(refreshToken) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+    method: "POST",
+    headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ refresh_token: refreshToken }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error_description || data?.msg || `${res.status}`);
+  return tokensToSession(data);
+}
+
+function tokensToSession(data) {
+  const payload = parseJwt(data.access_token);
+  return {
+    accessToken: data.access_token,
+    refreshToken: data.refresh_token,
+    email: payload?.email,
+    expiresAt: Date.now() + (data.expires_in || 3600) * 1000,
+  };
+}
+
 function readStoredSession() {
   try {
     const raw = localStorage.getItem(SESSION_STORAGE_KEY);
@@ -64,10 +96,17 @@ function extractSessionFromUrl() {
   if (!window.location.hash) return null;
   const params = new URLSearchParams(window.location.hash.slice(1));
   const accessToken = params.get("access_token");
+  const refreshToken = params.get("refresh_token");
+  const expiresIn = params.get("expires_in");
   if (!accessToken) return null;
   const payload = parseJwt(accessToken);
   if (!payload?.email) return null;
-  const session = { accessToken, email: payload.email };
+  const session = {
+    accessToken,
+    refreshToken,
+    email: payload.email,
+    expiresAt: Date.now() + (Number(expiresIn) || 3600) * 1000,
+  };
   window.history.replaceState(null, "", window.location.pathname);
   return session;
 }
@@ -172,8 +211,10 @@ function Timeline({ client, editable, onAdvance, onRetreat, onNote }) {
   );
 }
 
-function LoginScreen({ onSent }) {
+function LoginScreen({ onSent, onPasswordLogin }) {
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [asAdmin, setAsAdmin] = useState(false);
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState(null);
 
@@ -183,9 +224,14 @@ function LoginScreen({ onSent }) {
     setStatus("sending");
     setError(null);
     try {
-      await requestMagicLink(email.trim());
-      setStatus("sent");
-      onSent?.();
+      if (asAdmin) {
+        const session = await passwordLogin(email.trim(), password);
+        onPasswordLogin(session);
+      } else {
+        await requestMagicLink(email.trim());
+        setStatus("sent");
+        onSent?.();
+      }
     } catch (e) {
       setError(e.message);
       setStatus("idle");
@@ -272,6 +318,17 @@ function LoginScreen({ onSent }) {
           font-size: 13.5px;
           color: var(--teal);
         }
+        .login-toggle {
+          background: transparent;
+          color: var(--teal) !important;
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: 11px;
+          text-transform: none;
+          margin-top: 14px;
+          border: none;
+          text-decoration: underline;
+          cursor: pointer;
+        }
       `}</style>
       <div className="login-shell">
         <div className="login-card">
@@ -281,7 +338,7 @@ function LoginScreen({ onSent }) {
             <p className="login-sent">Enviamos um link de acesso para <b>{email}</b>. Abra seu e-mail e clique nele para entrar.</p>
           ) : (
             <>
-              <p>Digite seu e-mail para receber um link de acesso ao seu processo.</p>
+              <p>{asAdmin ? "Entre com seu e-mail e senha de administrador." : "Digite seu e-mail para receber um link de acesso ao seu processo."}</p>
               <form onSubmit={submit}>
                 <input
                   type="email"
@@ -290,11 +347,23 @@ function LoginScreen({ onSent }) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
+                {asAdmin && (
+                  <input
+                    type="password"
+                    required
+                    placeholder="Senha"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                )}
                 <button type="submit" disabled={status === "sending"}>
-                  {status === "sending" ? "Enviando…" : "Enviar link de acesso"}
+                  {status === "sending" ? "Entrando…" : asAdmin ? "Entrar" : "Enviar link de acesso"}
                 </button>
               </form>
-              {error && <p className="login-error">Não foi possível enviar: {error}</p>}
+              {error && <p className="login-error">Não foi possível entrar: {error}</p>}
+              <button type="button" className="login-toggle" onClick={() => setAsAdmin((v) => !v)}>
+                {asAdmin ? "Sou cliente" : "Sou administrador"}
+              </button>
             </>
           )}
         </div>
@@ -374,8 +443,37 @@ export default function App() {
       setSession(fromUrl);
       return;
     }
-    setSession(readStoredSession());
+    const stored = readStoredSession();
+    if (stored?.refreshToken && stored.expiresAt < Date.now() + 60000) {
+      refreshSession(stored.refreshToken)
+        .then((s) => {
+          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(s));
+          setSession(s);
+        })
+        .catch(() => {
+          localStorage.removeItem(SESSION_STORAGE_KEY);
+          setSession(null);
+        });
+    } else {
+      setSession(stored);
+    }
   }, []);
+
+  // Renova a sessão sozinha um pouco antes de vencer, para não precisar logar de novo
+  useEffect(() => {
+    if (!session?.refreshToken) return;
+    const msUntilRefresh = Math.max(session.expiresAt - Date.now() - 5 * 60 * 1000, 10000);
+    const timer = setTimeout(async () => {
+      try {
+        const next = await refreshSession(session.refreshToken);
+        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(next));
+        setSession(next);
+      } catch {
+        logout();
+      }
+    }, msUntilRefresh);
+    return () => clearTimeout(timer);
+  }, [session]);
 
   useEffect(() => {
     if (!session) return;
@@ -430,7 +528,14 @@ export default function App() {
   }
 
   if (!session) {
-    return <LoginScreen />;
+    return (
+      <LoginScreen
+        onPasswordLogin={(s) => {
+          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(s));
+          setSession(s);
+        }}
+      />
+    );
   }
 
   if (loading) {
