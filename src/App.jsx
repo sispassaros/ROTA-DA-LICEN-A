@@ -386,61 +386,41 @@ function LoginScreen({ onPasswordLogin }) {
           cursor: pointer;
         }
 
-        .side-birds {
+        .bg-split {
           position: fixed;
           inset: 0;
           pointer-events: none;
           z-index: 0;
-        }
-        .side-birds__panel {
-          position: absolute;
-          top: 0;
-          bottom: 0;
-          width: 44px;
           overflow: hidden;
         }
-        .side-birds__panel--left { left: 0; }
-        .side-birds__panel--right { right: 0; }
-        .side-birds__panel img {
+        .bg-split__img {
+          position: absolute;
+          inset: 0;
           width: 100%;
           height: 100%;
           object-fit: cover;
-          filter: saturate(0.92);
+          filter: saturate(0.9);
         }
-        .side-birds__panel--left::after {
+        .bg-split__img--top {
+          -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 62%);
+          mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 62%);
+        }
+        .bg-split::after {
           content: "";
           position: absolute;
           inset: 0;
-          background: linear-gradient(to right, transparent 0%, transparent 30%, var(--paper) 90%);
+          background: var(--paper);
+          opacity: 0.72;
         }
-        .side-birds__panel--right::after {
-          content: "";
+        .bg-split__credit {
           position: absolute;
-          inset: 0;
-          background: linear-gradient(to left, transparent 0%, transparent 30%, var(--paper) 90%);
-        }
-        .side-birds__credit, .side-birds__source { display: none; }
-        @media (min-width: 480px) {
-          .side-birds__panel { width: 90px; }
-        }
-        @media (min-width: 760px) {
-          .side-birds__panel { width: 160px; }
-          .side-birds__panel--left::after {
-            background: linear-gradient(to right, transparent 0%, transparent 40%, var(--paper) 92%);
-          }
-          .side-birds__panel--right::after {
-            background: linear-gradient(to left, transparent 0%, transparent 40%, var(--paper) 92%);
-          }
-        }
-        @media (min-width: 1180px) {
-          .side-birds__panel { width: 260px; }
-          .side-birds__panel--left::after {
-            background: linear-gradient(to right, transparent 0%, transparent 45%, var(--paper) 92%);
-          }
-          .side-birds__panel--right::after {
-            background: linear-gradient(to left, transparent 0%, transparent 45%, var(--paper) 92%);
-          }
-          .side-birds__credit, .side-birds__source { display: block; }
+          bottom: 8px;
+          left: 50%;
+          transform: translateX(-50%);
+          font-size: 9.5px;
+          color: var(--muted);
+          white-space: nowrap;
+          z-index: 1;
         }
       `}</style>
       <SideBirds />
@@ -601,16 +581,10 @@ const BIRD_PHOTOS = [
 
 function SideBirds() {
   return (
-    <div className="side-birds" aria-hidden="true">
-      <div className="side-birds__panel side-birds__panel--left">
-        <img src={BIRD_PHOTOS[0].url} alt="" />
-        <span className="side-birds__credit">{BIRD_PHOTOS[0].name}</span>
-      </div>
-      <div className="side-birds__panel side-birds__panel--right">
-        <img src={BIRD_PHOTOS[2].url} alt="" />
-        <span className="side-birds__credit side-birds__credit--right">{BIRD_PHOTOS[2].name}</span>
-      </div>
-      <p className="side-birds__source">Fotos: Dario Sanches, CC BY-SA 2.0, via Wikimedia Commons</p>
+    <div className="bg-split" aria-hidden="true">
+      <img className="bg-split__img bg-split__img--bottom" src={BIRD_PHOTOS[2].url} alt="" />
+      <img className="bg-split__img bg-split__img--top" src={BIRD_PHOTOS[0].url} alt="" />
+      <p className="bg-split__credit">Fotos: Dario Sanches, CC BY-SA 2.0, via Wikimedia Commons</p>
     </div>
   );
 }
@@ -1290,61 +1264,41 @@ export default function App() {
 
         .shell { position: relative; z-index: 1; }
 
-        .side-birds {
+        .bg-split {
           position: fixed;
           inset: 0;
           pointer-events: none;
           z-index: 0;
-        }
-        .side-birds__panel {
-          position: absolute;
-          top: 0;
-          bottom: 0;
-          width: 44px;
           overflow: hidden;
         }
-        .side-birds__panel--left { left: 0; }
-        .side-birds__panel--right { right: 0; }
-        .side-birds__panel img {
+        .bg-split__img {
+          position: absolute;
+          inset: 0;
           width: 100%;
           height: 100%;
           object-fit: cover;
-          filter: saturate(0.92);
+          filter: saturate(0.9);
         }
-        .side-birds__panel--left::after {
+        .bg-split__img--top {
+          -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 62%);
+          mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 62%);
+        }
+        .bg-split::after {
           content: "";
           position: absolute;
           inset: 0;
-          background: linear-gradient(to right, transparent 0%, transparent 30%, var(--paper) 90%);
+          background: var(--paper);
+          opacity: 0.72;
         }
-        .side-birds__panel--right::after {
-          content: "";
+        .bg-split__credit {
           position: absolute;
-          inset: 0;
-          background: linear-gradient(to left, transparent 0%, transparent 30%, var(--paper) 90%);
-        }
-        .side-birds__credit, .side-birds__source { display: none; }
-        @media (min-width: 480px) {
-          .side-birds__panel { width: 90px; }
-        }
-        @media (min-width: 760px) {
-          .side-birds__panel { width: 160px; }
-          .side-birds__panel--left::after {
-            background: linear-gradient(to right, transparent 0%, transparent 40%, var(--paper) 92%);
-          }
-          .side-birds__panel--right::after {
-            background: linear-gradient(to left, transparent 0%, transparent 40%, var(--paper) 92%);
-          }
-        }
-        @media (min-width: 1180px) {
-          .side-birds__panel { width: 260px; }
-          .side-birds__panel--left::after {
-            background: linear-gradient(to right, transparent 0%, transparent 45%, var(--paper) 92%);
-          }
-          .side-birds__panel--right::after {
-            background: linear-gradient(to left, transparent 0%, transparent 45%, var(--paper) 92%);
-          }
-          .side-birds__credit, .side-birds__source { display: block; }
+          bottom: 8px;
+          left: 50%;
+          transform: translateX(-50%);
+          font-size: 9.5px;
+          color: var(--muted);
+          white-space: nowrap;
+          z-index: 1;
         }
       `}</style>
 
