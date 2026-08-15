@@ -246,14 +246,14 @@ function LoginScreen({ onPasswordLogin }) {
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
         * { box-sizing: border-box; }
         .app {
-          --ink: #0f172a;
-          --paper: #f8fafc;
-          --paper-2: #f1f5f9;
-          --surface: #ffffff;
-          --muted: #64748b;
-          --line: #e2e8f0;
-          --accent: #4f46e5;
-          --rust: #dc2626;
+          --ink: #1b2e1f;
+          --paper: #f6f0de;
+          --paper-2: #ece0c0;
+          --surface: #fbf8f0;
+          --muted: #6b7362;
+          --line: #ddc9a0;
+          --accent: #1b4b91;
+          --rust: #c23b2e;
           font-family: 'Inter', sans-serif;
           background: var(--paper);
           color: var(--ink);
@@ -584,17 +584,17 @@ export default function App() {
 
         * { box-sizing: border-box; }
         .app {
-          --ink: #0f172a;
-          --paper: #f8fafc;
-          --paper-2: #f1f5f9;
-          --surface: #ffffff;
-          --muted: #64748b;
-          --line: #e2e8f0;
-          --accent: #4f46e5;
-          --accent-soft: #eef2ff;
-          --success: #059669;
-          --success-soft: #ecfdf5;
-          --rust: #dc2626;
+          --ink: #1b2e1f;
+          --paper: #f6f0de;
+          --paper-2: #ece0c0;
+          --surface: #fbf8f0;
+          --muted: #6b7362;
+          --line: #ddc9a0;
+          --accent: #1b4b91;
+          --accent-soft: #e4ebf6;
+          --success: #2f7a45;
+          --success-soft: #e6f0e8;
+          --rust: #c23b2e;
           font-family: 'Inter', sans-serif;
           background: var(--paper);
           color: var(--ink);
