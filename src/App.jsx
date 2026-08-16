@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Feather, Check, Clock, Circle, ChevronRight, User, LayoutGrid, StickyNote, Plus, Minus, Loader2, UserPlus, X, Paperclip, Search } from "lucide-react";
+import { Feather, Check, Clock, Circle, ChevronRight, User, LayoutGrid, StickyNote, Plus, Minus, Loader2, UserPlus, X, Paperclip, Search, FileText, Image } from "lucide-react";
 
 const SUPABASE_URL = "https://xoxdqbdmryhcqxunvpxd.supabase.co";
 const SUPABASE_KEY = "sb_publishable_mcE5RKGiKNhQLrfgEDdzdg_enaeizB6";
@@ -271,23 +271,29 @@ function Timeline({ client, editable, onAdvance, onRetreat, onNote, onOutcome, o
 
               {stageAttachments.length > 0 && (
                 <div className="attachments">
-                  {stageAttachments.map((a, ai) => (
-                    <div className="attachments__item" key={ai}>
-                      <a href={a.url} target="_blank" rel="noopener noreferrer">
-                        <Paperclip size={12} /> {a.name}
-                      </a>
-                      {editable && (
-                        <button
-                          type="button"
-                          className="attachments__remove"
-                          onClick={() => onRemoveAttachment(i, ai)}
-                          title="Remover anexo"
-                        >
-                          <X size={11} />
-                        </button>
-                      )}
-                    </div>
-                  ))}
+                  {stageAttachments.map((a, ai) => {
+                    const isPdf = (a.type || "").includes("pdf");
+                    return (
+                      <div className="attachments__item" key={ai}>
+                        <a href={a.url} target="_blank" rel="noopener noreferrer">
+                          <span className={`attachments__icon ${isPdf ? "attachments__icon--pdf" : "attachments__icon--image"}`}>
+                            {isPdf ? <FileText size={13} /> : <Image size={13} />}
+                          </span>
+                          <span className="attachments__name">{a.name}</span>
+                        </a>
+                        {editable && (
+                          <button
+                            type="button"
+                            className="attachments__remove"
+                            onClick={() => onRemoveAttachment(i, ai)}
+                            title="Remover anexo"
+                          >
+                            <X size={11} />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
@@ -387,7 +393,7 @@ function LoginScreen({ onPasswordLogin }) {
           --surface: #ffffff;
           --muted: #52606d;
           --line: #e2e8f0;
-          --accent: #1e3a5f;
+          --accent: #1e293b;
           --rust: #c23b2e;
           font-family: 'Inter', sans-serif;
           background: var(--paper);
@@ -877,9 +883,9 @@ export default function App() {
           --surface: #ffffff;
           --muted: #52606d;
           --line: #e2e8f0;
-          --accent: #1e3a5f;
+          --accent: #1e293b;
           --accent-soft: #e7eef6;
-          --success: #0f8a52;
+          --success: #059669;
           --success-soft: #e5f6ee;
           --rust: #c23b2e;
           font-family: 'Inter', sans-serif;
@@ -901,6 +907,10 @@ export default function App() {
           justify-content: space-between;
           margin-bottom: 34px;
           gap: 12px;
+          background: var(--ink);
+          border-radius: 10px;
+          padding: 14px 18px;
+          border-bottom: 3px solid var(--success);
         }
 
         .brand {
@@ -911,7 +921,7 @@ export default function App() {
         .brand__mark {
           width: 32px; height: 32px;
           border-radius: 7px;
-          background: var(--accent);
+          background: var(--success);
           color: #ffffff;
           display: flex; align-items: center; justify-content: center;
         }
@@ -930,7 +940,7 @@ export default function App() {
           font-weight: 600;
           font-size: 15.5px;
           line-height: 1.1;
-          color: var(--ink);
+          color: #ffffff;
         }
         .brand__text small {
           display: block;
@@ -938,14 +948,14 @@ export default function App() {
           font-weight: 400;
           font-size: 11px;
           letter-spacing: 0.02em;
-          color: var(--muted);
+          color: #94a3b8;
           margin-top: 3px;
         }
 
         .switcher {
           display: flex;
-          background: var(--surface);
-          border: 1px solid var(--line);
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.14);
           border-radius: 8px;
           padding: 3px;
           gap: 2px;
@@ -959,12 +969,12 @@ export default function App() {
           padding: 7px 13px;
           border-radius: 6px;
           cursor: pointer;
-          color: var(--muted);
+          color: #cbd5e1;
           display: flex; align-items: center; gap: 6px;
           transition: background 0.15s ease, color 0.15s ease;
         }
         .switcher button.active {
-          background: var(--ink);
+          background: var(--success);
           color: #ffffff;
         }
 
@@ -1138,6 +1148,12 @@ export default function App() {
           background: var(--accent);
           border-color: var(--accent);
           color: #ffffff;
+          animation: pulse-ring 2s ease-out infinite;
+        }
+        @keyframes pulse-ring {
+          0% { box-shadow: 0 0 0 0 rgba(30, 41, 59, 0.35); }
+          70% { box-shadow: 0 0 0 8px rgba(30, 41, 59, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(30, 41, 59, 0); }
         }
         .checkpoint--recusada .checkpoint__marker {
           background: var(--rust);
@@ -1227,14 +1243,44 @@ export default function App() {
         .attachments__item a {
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 8px;
           font-size: 12.5px;
-          color: var(--accent);
-          background: var(--accent-soft);
-          border-radius: 6px;
-          padding: 6px 10px;
+          font-weight: 500;
+          color: var(--ink);
+          background: var(--paper-2);
+          border: 1px solid var(--line);
+          border-radius: 8px;
+          padding: 8px 10px;
           text-decoration: none;
           flex: 1;
+          box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+          transition: box-shadow 0.15s ease, border-color 0.15s ease;
+        }
+        .attachments__item a:hover {
+          border-color: var(--accent);
+          box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+        }
+        .attachments__name {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .attachments__icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 24px;
+          height: 24px;
+          border-radius: 6px;
+          flex-shrink: 0;
+        }
+        .attachments__icon--pdf {
+          background: #fbe8e5;
+          color: var(--rust);
+        }
+        .attachments__icon--image {
+          background: var(--accent-soft);
+          color: var(--accent);
         }
         .attachments__remove {
           border: none;
