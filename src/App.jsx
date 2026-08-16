@@ -401,6 +401,20 @@ function LoginScreen({ onPasswordLogin }) {
           color: #ffffff;
           display: flex; align-items: center; justify-content: center;
         }
+        .brand__mark--logo {
+          background: #ffffff;
+          border: 1px solid var(--line);
+        }
+        .brand__mark--logo img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          padding: 3px;
+        }
+        .login-card .brand__mark--logo {
+          width: 52px;
+          height: 52px;
+        }
         .login-shell {
           min-height: 100vh;
           display: flex;
@@ -524,7 +538,9 @@ function LoginScreen({ onPasswordLogin }) {
       <SideBirds />
       <div className="login-shell">
         <div className="login-card">
-          <div className="brand__mark" style={{ display: "inline-flex" }}><Feather size={17} /></div>
+          <div className="brand__mark brand__mark--logo" style={{ display: "inline-flex" }}>
+            <img src="/logo-icon.png" alt="SisPássaro" />
+          </div>
           <h1>Rota da Licença</h1>
           {status === "sent" ? null : (
             <>
@@ -951,6 +967,16 @@ export default function App() {
           background: var(--accent);
           color: #ffffff;
           display: flex; align-items: center; justify-content: center;
+        }
+        .brand__mark--logo {
+          background: #ffffff;
+          border: 1px solid var(--line);
+        }
+        .brand__mark--logo img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          padding: 3px;
         }
         .brand__text {
           font-family: 'Inter', sans-serif;
@@ -1537,7 +1563,9 @@ export default function App() {
       <div className="shell">
         <div className="topbar">
           <div className="brand">
-            <div className="brand__mark"><Feather size={17} /></div>
+            <div className="brand__mark brand__mark--logo">
+              <img src="/logo-icon.png" alt="SisPássaro" />
+            </div>
             <div className="brand__text">
               Rota da Licença
               <small>Consultoria · Criação Amadora</small>
