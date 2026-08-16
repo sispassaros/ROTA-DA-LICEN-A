@@ -381,13 +381,13 @@ function LoginScreen({ onPasswordLogin }) {
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
         * { box-sizing: border-box; }
         .app {
-          --ink: #1b2e1f;
-          --paper: #f6f0de;
-          --paper-2: #ece0c0;
-          --surface: #fbf8f0;
-          --muted: #4a5142;
-          --line: #ddc9a0;
-          --accent: #1b4b91;
+          --ink: #0f172a;
+          --paper: #f8fafc;
+          --paper-2: #eef2f7;
+          --surface: #ffffff;
+          --muted: #52606d;
+          --line: #e2e8f0;
+          --accent: #1e3a5f;
           --rust: #c23b2e;
           font-family: 'Inter', sans-serif;
           background: var(--paper);
@@ -491,51 +491,7 @@ function LoginScreen({ onPasswordLogin }) {
           cursor: pointer;
         }
 
-        .bg-split {
-          position: fixed;
-          top: 0;
-          bottom: 0;
-          left: 0;
-          width: clamp(160px, 34vw, 460px);
-          pointer-events: none;
-          z-index: 0;
-          overflow: hidden;
-        }
-        .bg-split__img {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          filter: saturate(0.95);
-        }
-        @media (max-width: 640px) {
-          .bg-split__img { opacity: 0.4; }
-        }
-        .bg-split::after {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(to right, transparent 0%, transparent 42%, var(--paper) 96%);
-        }
-        .bg-split__credit {
-          display: none;
-        }
-        @media (min-width: 760px) {
-          .bg-split__credit {
-            display: block;
-            position: absolute;
-            bottom: 8px;
-            left: 10px;
-            font-size: 9px;
-            color: var(--muted);
-            white-space: nowrap;
-            writing-mode: vertical-rl;
-            z-index: 1;
-          }
-        }
       `}</style>
-      <SideBirds />
       <div className="login-shell">
         <div className="login-card">
           <div className="brand__mark brand__mark--logo" style={{ display: "inline-flex" }}>
@@ -719,15 +675,6 @@ const BIRD_PHOTOS = [
     url: "https://commons.wikimedia.org/wiki/Special:FilePath/Flickr_-_Dario_Sanches_-_CURI%C3%93_%28Sporophila_angolensis_-_Oryzoborus_angolensis%29.jpg?width=600",
   },
 ];
-
-function SideBirds() {
-  return (
-    <div className="bg-split" aria-hidden="true">
-      <img className="bg-split__img" src={BIRD_PHOTOS[0].url} alt="" />
-      <p className="bg-split__credit">Foto: Dario Sanches, CC BY-SA 2.0, via Wikimedia Commons</p>
-    </div>
-  );
-}
 
 export default function App() {
   const [session, setSession] = useState(undefined);
@@ -924,16 +871,16 @@ export default function App() {
 
         * { box-sizing: border-box; }
         .app {
-          --ink: #1b2e1f;
-          --paper: #f6f0de;
-          --paper-2: #ece0c0;
-          --surface: #fbf8f0;
-          --muted: #4a5142;
-          --line: #ddc9a0;
-          --accent: #1b4b91;
-          --accent-soft: #e4ebf6;
-          --success: #2f7a45;
-          --success-soft: #e6f0e8;
+          --ink: #0f172a;
+          --paper: #f8fafc;
+          --paper-2: #eef2f7;
+          --surface: #ffffff;
+          --muted: #52606d;
+          --line: #e2e8f0;
+          --accent: #1e3a5f;
+          --accent-soft: #e7eef6;
+          --success: #0f8a52;
+          --success-soft: #e5f6ee;
           --rust: #c23b2e;
           font-family: 'Inter', sans-serif;
           background: var(--paper);
@@ -1513,52 +1460,8 @@ export default function App() {
 
         .shell { position: relative; z-index: 1; }
 
-        .bg-split {
-          position: fixed;
-          top: 0;
-          bottom: 0;
-          left: 0;
-          width: clamp(160px, 34vw, 460px);
-          pointer-events: none;
-          z-index: 0;
-          overflow: hidden;
-        }
-        .bg-split__img {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          filter: saturate(0.95);
-        }
-        @media (max-width: 640px) {
-          .bg-split__img { opacity: 0.4; }
-        }
-        .bg-split::after {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(to right, transparent 0%, transparent 42%, var(--paper) 96%);
-        }
-        .bg-split__credit {
-          display: none;
-        }
-        @media (min-width: 760px) {
-          .bg-split__credit {
-            display: block;
-            position: absolute;
-            bottom: 8px;
-            left: 10px;
-            font-size: 9px;
-            color: var(--muted);
-            white-space: nowrap;
-            writing-mode: vertical-rl;
-            z-index: 1;
-          }
-        }
       `}</style>
 
-      <SideBirds />
 
       <div className="shell">
         <div className="topbar">
