@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Feather, Check, Clock, Circle, ChevronRight, User, LayoutGrid, StickyNote, Plus, Minus, Loader2, UserPlus, X, Paperclip } from "lucide-react";
+import { Feather, Check, Clock, Circle, ChevronRight, User, LayoutGrid, StickyNote, Plus, Minus, Loader2, UserPlus, X, Paperclip, Search } from "lucide-react";
 
 const SUPABASE_URL = "https://xoxdqbdmryhcqxunvpxd.supabase.co";
 const SUPABASE_KEY = "sb_publishable_mcE5RKGiKNhQLrfgEDdzdg_enaeizB6";
@@ -738,7 +738,7 @@ export default function App() {
   const [error, setError] = useState(null);
   const [showNewClient, setShowNewClient] = useState(false);
   const [editingClient, setEditingClient] = useState(false);
-  const [adminTab, setAdminTab] = useState("ativos");
+  const [clientSearch, setClientSearch] = useState("");
   const client = clients.find((c) => c.id === selectedId);
   const isAdmin = session?.email === ADMIN_EMAIL;
 
@@ -1083,26 +1083,26 @@ export default function App() {
           background: #ffffff;
         }
 
-        .admin-tabs {
+        .client-search {
           display: flex;
-          gap: 6px;
-          margin-bottom: 12px;
-        }
-        .admin-tabs button {
-          font-family: 'Inter', sans-serif;
-          font-weight: 500;
-          font-size: 12.5px;
-          padding: 7px 13px;
-          border-radius: 7px;
-          border: 1px solid var(--line);
+          align-items: center;
+          gap: 8px;
           background: var(--surface);
+          border: 1px solid var(--line);
+          border-radius: 8px;
+          padding: 9px 12px;
+          margin-bottom: 12px;
           color: var(--muted);
-          cursor: pointer;
+          box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
         }
-        .admin-tabs button.active {
-          background: var(--ink);
-          border-color: var(--ink);
-          color: #ffffff;
+        .client-search input {
+          border: none;
+          outline: none;
+          background: transparent;
+          font-family: 'Inter', sans-serif;
+          font-size: 13.5px;
+          color: var(--ink);
+          flex: 1;
         }
 
         .client-detail-bar {
@@ -1616,16 +1616,14 @@ export default function App() {
         </div>
 
         {isAdmin && view === "admin" && (
-          <div className="admin-tabs">
-            <button className={adminTab === "ativos" ? "active" : ""} onClick={() => setAdminTab("ativos")}>
-              Em andamento
-            </button>
-            <button className={adminTab === "liberados" ? "active" : ""} onClick={() => setAdminTab("liberados")}>
-              Liberados
-            </button>
-            <button className={adminTab === "recusados" ? "active" : ""} onClick={() => setAdminTab("recusados")}>
-              Recusados
-            </button>
+          <div className="client-search">
+            <Search size={14} />
+            <input
+              type="text"
+              placeholder="Pesquisar cliente pelo nome…"
+              value={clientSearch}
+              onChange={(e) => setClientSearch(e.target.value)}
+            />
           </div>
         )}
 
@@ -1634,10 +1632,7 @@ export default function App() {
             {clients
               .filter((c) => {
                 if (!(view === "admin")) return true;
-                const lastIndex = STAGES.length - 1;
-                if (adminTab === "liberados") return c.stage === lastIndex && c.outcome !== "recusada";
-                if (adminTab === "recusados") return c.stage === lastIndex && c.outcome === "recusada";
-                return !(c.stage === lastIndex);
+                return c.name.toLowerCase().includes(clientSearch.trim().toLowerCase());
               })
               .map((c) => (
                 <button
