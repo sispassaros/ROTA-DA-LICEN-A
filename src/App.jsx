@@ -479,7 +479,10 @@ function LoginScreen({ onPasswordLogin }) {
 
         .bg-split {
           position: fixed;
-          inset: 0;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          width: 90px;
           pointer-events: none;
           z-index: 0;
           overflow: hidden;
@@ -496,18 +499,38 @@ function LoginScreen({ onPasswordLogin }) {
           content: "";
           position: absolute;
           inset: 0;
-          background: var(--paper);
-          opacity: 0.72;
+          background: linear-gradient(to right, transparent 0%, transparent 25%, var(--paper) 92%);
+        }
+        @media (min-width: 480px) {
+          .bg-split { width: 140px; }
+        }
+        @media (min-width: 760px) {
+          .bg-split { width: 220px; }
+          .bg-split::after {
+            background: linear-gradient(to right, transparent 0%, transparent 40%, var(--paper) 92%);
+          }
+        }
+        @media (min-width: 1180px) {
+          .bg-split { width: 300px; }
+          .bg-split::after {
+            background: linear-gradient(to right, transparent 0%, transparent 45%, var(--paper) 92%);
+          }
         }
         .bg-split__credit {
-          position: absolute;
-          bottom: 8px;
-          left: 50%;
-          transform: translateX(-50%);
-          font-size: 9.5px;
-          color: var(--muted);
-          white-space: nowrap;
-          z-index: 1;
+          display: none;
+        }
+        @media (min-width: 760px) {
+          .bg-split__credit {
+            display: block;
+            position: absolute;
+            bottom: 8px;
+            left: 10px;
+            font-size: 9px;
+            color: var(--muted);
+            white-space: nowrap;
+            writing-mode: vertical-rl;
+            z-index: 1;
+          }
         }
       `}</style>
       <SideBirds />
@@ -1478,7 +1501,10 @@ export default function App() {
 
         .bg-split {
           position: fixed;
-          inset: 0;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          width: 90px;
           pointer-events: none;
           z-index: 0;
           overflow: hidden;
@@ -1495,18 +1521,38 @@ export default function App() {
           content: "";
           position: absolute;
           inset: 0;
-          background: var(--paper);
-          opacity: 0.72;
+          background: linear-gradient(to right, transparent 0%, transparent 25%, var(--paper) 92%);
+        }
+        @media (min-width: 480px) {
+          .bg-split { width: 140px; }
+        }
+        @media (min-width: 760px) {
+          .bg-split { width: 220px; }
+          .bg-split::after {
+            background: linear-gradient(to right, transparent 0%, transparent 40%, var(--paper) 92%);
+          }
+        }
+        @media (min-width: 1180px) {
+          .bg-split { width: 300px; }
+          .bg-split::after {
+            background: linear-gradient(to right, transparent 0%, transparent 45%, var(--paper) 92%);
+          }
         }
         .bg-split__credit {
-          position: absolute;
-          bottom: 8px;
-          left: 50%;
-          transform: translateX(-50%);
-          font-size: 9.5px;
-          color: var(--muted);
-          white-space: nowrap;
-          z-index: 1;
+          display: none;
+        }
+        @media (min-width: 760px) {
+          .bg-split__credit {
+            display: block;
+            position: absolute;
+            bottom: 8px;
+            left: 10px;
+            font-size: 9px;
+            color: var(--muted);
+            white-space: nowrap;
+            writing-mode: vertical-rl;
+            z-index: 1;
+          }
         }
       `}</style>
 
