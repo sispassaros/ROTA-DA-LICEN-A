@@ -333,6 +333,9 @@ function Timeline({ client, editable, onAdvance, onRetreat, onNote, onOutcome, o
               {isLastReached && !editable && client.outcome === "recusada" && (
                 <p className="checkpoint__note checkpoint__note--danger">Licença recusada pelo órgão ambiental.</p>
               )}
+              {isLastReached && !editable && client.outcome !== "recusada" && (
+                <p className="highlight-message">🎉 Entre em contato com a Sispássaros</p>
+              )}
             </div>
           </div>
         );
@@ -1322,6 +1325,17 @@ export default function App() {
         .checkpoint__note--danger {
           background: #fbe8e5;
           color: var(--rust);
+        }
+        .highlight-message {
+          margin: 12px 0 0;
+          font-size: 13.5px;
+          font-weight: 600;
+          color: var(--success);
+          background: var(--success-soft);
+          border: 1px solid var(--success);
+          border-radius: 7px;
+          padding: 10px 14px;
+          text-align: center;
         }
 
         .stage-controls {
