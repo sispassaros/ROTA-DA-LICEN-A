@@ -495,6 +495,9 @@ function LoginScreen({ onPasswordLogin }) {
           object-fit: cover;
           filter: saturate(0.95);
         }
+        @media (max-width: 640px) {
+          .bg-split__img { opacity: 0.4; }
+        }
         .bg-split::after {
           content: "";
           position: absolute;
@@ -1501,6 +1504,9 @@ export default function App() {
           height: 100%;
           object-fit: cover;
           filter: saturate(0.95);
+        }
+        @media (max-width: 640px) {
+          .bg-split__img { opacity: 0.4; }
         }
         .bg-split::after {
           content: "";
