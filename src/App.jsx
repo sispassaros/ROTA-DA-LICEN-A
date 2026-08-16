@@ -610,15 +610,21 @@ function EditClientForm({ client, onSaved, onClose, accessToken }) {
   const [name, setName] = useState(client.name);
   const [species, setSpecies] = useState(client.species || "");
   const [email, setEmail] = useState(client.email || "");
+  const [password, setPassword] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+
+  const emailChanged = email.trim() !== (client.email || "");
 
   async function submit(e) {
     e.preventDefault();
     setSaving(true);
     setError(null);
     try {
-      const fields = { name, species };
+      if (emailChanged) {
+        await signupUser(email.trim(), password);
+      }
+      const fields = { name, species, email: email.trim() };
       const [row] = await supaFetch(
         `clients?id=eq.${client.id}`,
         { method: "PATCH", body: JSON.stringify(fields) },
@@ -637,7 +643,28 @@ function EditClientForm({ client, onSaved, onClose, accessToken }) {
       <form onSubmit={submit} className="new-client__form">
         <input placeholder="Nome completo" required value={name} onChange={(e) => setName(e.target.value)} />
         <input placeholder="Plantel (ex: Curió, Bicudo)" value={species} onChange={(e) => setSpecies(e.target.value)} />
-        <input type="email" value={email} disabled title="O e-mail de login não pode ser alterado por aqui" />
+        <input
+          type="email"
+          placeholder="E-mail do cliente (login)"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        {emailChanged && (
+          <input
+            type="text"
+            placeholder="Nova senha (necessária pois o e-mail mudou)"
+            required
+            minLength={6}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        )}
+        {emailChanged && (
+          <p className="edit-hint">
+            O e-mail de login está mudando — depois de salvar, repasse o novo e-mail e a nova senha ao cliente.
+          </p>
+        )}
         <div className="new-client__actions">
           <button type="button" onClick={onClose} className="new-client__cancel">Cancelar</button>
           <button type="submit" disabled={saving}>{saving ? "Salvando…" : "Salvar alterações"}</button>
@@ -1418,6 +1445,11 @@ export default function App() {
           background: transparent !important;
           border-color: var(--line) !important;
           color: var(--ink) !important;
+        }
+        .edit-hint {
+          font-size: 11.5px;
+          color: var(--muted);
+          margin: -4px 0 0;
         }
 
         .bg-birds {
