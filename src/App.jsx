@@ -482,7 +482,7 @@ function LoginScreen({ onPasswordLogin }) {
           top: 0;
           bottom: 0;
           left: 0;
-          width: 90px;
+          width: clamp(160px, 34vw, 460px);
           pointer-events: none;
           z-index: 0;
           overflow: hidden;
@@ -493,28 +493,13 @@ function LoginScreen({ onPasswordLogin }) {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          filter: saturate(0.9);
+          filter: saturate(0.95);
         }
         .bg-split::after {
           content: "";
           position: absolute;
           inset: 0;
-          background: linear-gradient(to right, transparent 0%, transparent 25%, var(--paper) 92%);
-        }
-        @media (min-width: 480px) {
-          .bg-split { width: 140px; }
-        }
-        @media (min-width: 760px) {
-          .bg-split { width: 220px; }
-          .bg-split::after {
-            background: linear-gradient(to right, transparent 0%, transparent 40%, var(--paper) 92%);
-          }
-        }
-        @media (min-width: 1180px) {
-          .bg-split { width: 300px; }
-          .bg-split::after {
-            background: linear-gradient(to right, transparent 0%, transparent 45%, var(--paper) 92%);
-          }
+          background: linear-gradient(to right, transparent 0%, transparent 42%, var(--paper) 96%);
         }
         .bg-split__credit {
           display: none;
@@ -1504,7 +1489,7 @@ export default function App() {
           top: 0;
           bottom: 0;
           left: 0;
-          width: 90px;
+          width: clamp(160px, 34vw, 460px);
           pointer-events: none;
           z-index: 0;
           overflow: hidden;
@@ -1515,28 +1500,13 @@ export default function App() {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          filter: saturate(0.9);
+          filter: saturate(0.95);
         }
         .bg-split::after {
           content: "";
           position: absolute;
           inset: 0;
-          background: linear-gradient(to right, transparent 0%, transparent 25%, var(--paper) 92%);
-        }
-        @media (min-width: 480px) {
-          .bg-split { width: 140px; }
-        }
-        @media (min-width: 760px) {
-          .bg-split { width: 220px; }
-          .bg-split::after {
-            background: linear-gradient(to right, transparent 0%, transparent 40%, var(--paper) 92%);
-          }
-        }
-        @media (min-width: 1180px) {
-          .bg-split { width: 300px; }
-          .bg-split::after {
-            background: linear-gradient(to right, transparent 0%, transparent 45%, var(--paper) 92%);
-          }
+          background: linear-gradient(to right, transparent 0%, transparent 42%, var(--paper) 96%);
         }
         .bg-split__credit {
           display: none;
