@@ -430,6 +430,20 @@ function LoginScreen({ onPasswordLogin }) {
           position: relative;
           z-index: 1;
         }
+        .forest-watermark {
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          z-index: 0;
+          overflow: hidden;
+        }
+        .forest-watermark img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          opacity: 0.055;
+          filter: grayscale(0.2);
+        }
         .login-card {
           max-width: 380px;
           width: 100%;
@@ -498,6 +512,7 @@ function LoginScreen({ onPasswordLogin }) {
         }
 
       `}</style>
+      <ForestWatermark />
       <div className="login-shell">
         <div className="login-card">
           <div className="brand__mark brand__mark--logo" style={{ display: "inline-flex" }}>
@@ -681,6 +696,17 @@ const BIRD_PHOTOS = [
     url: "https://commons.wikimedia.org/wiki/Special:FilePath/Flickr_-_Dario_Sanches_-_CURI%C3%93_%28Sporophila_angolensis_-_Oryzoborus_angolensis%29.jpg?width=600",
   },
 ];
+
+const FOREST_PHOTO_URL =
+  "https://commons.wikimedia.org/wiki/Special:FilePath/Floresta_Amazonica_vista_do_alto..jpg?width=1600";
+
+function ForestWatermark() {
+  return (
+    <div className="forest-watermark" aria-hidden="true">
+      <img src={FOREST_PHOTO_URL} alt="" />
+    </div>
+  );
+}
 
 export default function App() {
   const [session, setSession] = useState(undefined);
@@ -1505,10 +1531,25 @@ export default function App() {
         }
 
         .shell { position: relative; z-index: 1; }
+        .forest-watermark {
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          z-index: 0;
+          overflow: hidden;
+        }
+        .forest-watermark img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          opacity: 0.055;
+          filter: grayscale(0.2);
+        }
 
       `}</style>
 
 
+      <ForestWatermark />
       <div className="shell">
         <div className="topbar">
           <div className="brand">
