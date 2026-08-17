@@ -1628,7 +1628,10 @@ export default function App() {
                 <button
                   key={c.id}
                   className={`client-pill ${selectedId === c.id ? "active" : ""}`}
-                  onClick={() => setSelectedId(c.id)}
+                  onClick={() => {
+                    setSelectedId(c.id);
+                    setEditingClient(false);
+                  }}
                 >
                   <span className="client-pill__dot" />
                   {view === "admin" ? c.name : c.name.split(" ")[0]}
@@ -1657,6 +1660,7 @@ export default function App() {
 
         {isAdmin && view === "admin" && editingClient && client && (
           <EditClientForm
+            key={client.id}
             client={client}
             accessToken={session.accessToken}
             onClose={() => setEditingClient(false)}
