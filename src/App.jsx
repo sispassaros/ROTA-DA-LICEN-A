@@ -1638,7 +1638,6 @@ export default function App() {
       `}</style>
 
 
-      <ForestWatermark />
       <div className="shell">
         <div className="topbar">
           <div className="brand">
