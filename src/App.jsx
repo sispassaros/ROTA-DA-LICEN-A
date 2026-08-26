@@ -424,11 +424,90 @@ function LoginScreen({ onPasswordLogin }) {
         .login-shell {
           min-height: 100vh;
           display: flex;
+          position: relative;
+          z-index: 1;
+        }
+        .login-visual {
+          flex: 1;
+          display: none;
+          position: relative;
+          overflow: hidden;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          padding: 40px;
+          background: linear-gradient(135deg, #0b1224 0%, #1e3a8a 55%, #2563eb 130%);
+          color: #ffffff;
+        }
+        .login-visual__rings {
+          position: absolute;
+          width: 320px;
+          height: 320px;
+          border-radius: 50%;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .login-visual__rings::before {
+          content: "";
+          position: absolute;
+          inset: -70px;
+          border-radius: 50%;
+          border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        .login-visual__rings::after {
+          content: "";
+          position: absolute;
+          inset: -140px;
+          border-radius: 50%;
+          border: 1px solid rgba(255, 255, 255, 0.045);
+        }
+        .login-visual__icon {
+          width: 96px;
+          height: 96px;
+          background: #ffffff;
+          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+          z-index: 1;
+          margin-bottom: 22px;
+        }
+        .login-visual__icon img {
+          width: 68%;
+          height: 68%;
+          object-fit: contain;
+        }
+        .login-visual__title {
+          font-family: 'Inter', sans-serif;
+          font-size: 32px;
+          font-weight: 800;
+          letter-spacing: 0.01em;
+          z-index: 1;
+          text-align: center;
+        }
+        .login-visual__subtitle {
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
+          font-weight: 600;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: rgba(255, 255, 255, 0.72);
+          margin-top: 9px;
+          z-index: 1;
+          text-align: center;
+        }
+        .login-form-side {
+          flex: 1;
+          display: flex;
           align-items: center;
           justify-content: center;
           padding: 24px;
+          background: var(--paper);
           position: relative;
           z-index: 1;
+        }
+        @media (min-width: 860px) {
+          .login-visual { display: flex; }
         }
         .forest-watermark {
           position: fixed;
@@ -514,6 +593,15 @@ function LoginScreen({ onPasswordLogin }) {
       `}</style>
       <ForestWatermark />
       <div className="login-shell">
+        <div className="login-visual">
+          <div className="login-visual__rings" />
+          <div className="login-visual__icon">
+            <img src="/logo-icon.png" alt="SisPássaros" />
+          </div>
+          <div className="login-visual__title">SISPÁSSAROS</div>
+          <div className="login-visual__subtitle">Consultoria e Certificado Digital</div>
+        </div>
+        <div className="login-form-side">
         <div className="login-card">
           <div className="brand__mark brand__mark--logo" style={{ display: "inline-flex" }}>
             <img src="/logo-icon.png" alt="SisPássaro" />
@@ -544,6 +632,7 @@ function LoginScreen({ onPasswordLogin }) {
               {error && <p className="login-error">Não foi possível entrar: {error}</p>}
             </>
           )}
+        </div>
         </div>
       </div>
     </div>
