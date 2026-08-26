@@ -436,7 +436,7 @@ function LoginScreen({ onPasswordLogin }) {
           justify-content: center;
           flex-direction: column;
           padding: 40px;
-          background: linear-gradient(135deg, #0b1224 0%, #1e3a8a 55%, #2563eb 130%);
+          background: linear-gradient(135deg, #431407 0%, #c2410c 55%, #f59e0b 130%);
           color: #ffffff;
         }
         .login-visual__rings {
