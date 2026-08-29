@@ -806,7 +806,10 @@ export default function App() {
   const [error, setError] = useState(null);
   const [showNewClient, setShowNewClient] = useState(false);
   const [editingClient, setEditingClient] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [clientSearch, setClientSearch] = useState("");
+  const [quickFilter, setQuickFilter] = useState(null);
   const client = clients.find((c) => c.id === selectedId);
   const isAdmin = session?.email === ADMIN_EMAIL;
 
@@ -931,6 +934,23 @@ export default function App() {
       );
     } catch (e) {
       setError(e.message);
+    }
+  }
+
+  async function deleteClient(id) {
+    setDeleting(true);
+    try {
+      await supaFetch(`clients?id=eq.${id}`, { method: "DELETE" }, session.accessToken);
+      setClients((prev) => {
+        const next = prev.filter((c) => c.id !== id);
+        setSelectedId(next.length ? next[0].id : null);
+        return next;
+      });
+      setConfirmingDelete(false);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -1194,6 +1214,10 @@ export default function App() {
         .client-detail-bar__row strong {
           font-size: 14.5px;
         }
+        .client-detail-bar__actions {
+          display: flex;
+          gap: 8px;
+        }
         .client-detail-bar__row button {
           font-family: 'Inter', sans-serif;
           font-weight: 500;
@@ -1204,6 +1228,10 @@ export default function App() {
           background: var(--paper);
           color: var(--ink);
           cursor: pointer;
+        }
+        .client-detail-bar__delete {
+          border-color: #f3b7ae !important;
+          color: var(--rust) !important;
         }
         .client-detail-bar__deadline {
           display: flex;
@@ -1221,6 +1249,39 @@ export default function App() {
           border-radius: 6px;
           background: var(--paper);
           color: var(--ink);
+        }
+        .delete-confirm {
+          margin-top: 14px;
+          padding: 14px 16px;
+          background: #fdeeec;
+          border: 1px solid #f3b7ae;
+          border-radius: 8px;
+        }
+        .delete-confirm p {
+          font-size: 12.5px;
+          color: #7a2a20;
+          line-height: 1.5;
+          margin: 0 0 12px;
+        }
+        .delete-confirm__actions {
+          display: flex;
+          gap: 10px;
+          justify-content: flex-end;
+        }
+        .delete-confirm__confirm {
+          font-family: 'Inter', sans-serif;
+          font-weight: 500;
+          font-size: 12px;
+          padding: 8px 14px;
+          border-radius: 6px;
+          border: 1px solid var(--rust);
+          background: var(--rust);
+          color: #ffffff;
+          cursor: pointer;
+        }
+        .delete-confirm__confirm:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
         }
 
         .timeline {
@@ -1523,6 +1584,17 @@ export default function App() {
           border-radius: 8px;
           padding: 14px 16px;
           box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+          cursor: pointer;
+          text-align: left;
+          width: 100%;
+          transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .admin-summary__card:hover {
+          border-color: var(--accent);
+        }
+        .admin-summary__card--active {
+          border-color: var(--accent);
+          box-shadow: 0 0 0 1px var(--accent);
         }
         .admin-summary__card b {
           font-family: 'Inter', sans-serif;
@@ -1666,20 +1738,29 @@ export default function App() {
 
         {isAdmin && view === "admin" && (
           <div className="admin-summary">
-            <div className="admin-summary__card">
+            <button
+              className={`admin-summary__card ${quickFilter === "ativos" || !quickFilter ? "admin-summary__card--active" : ""}`}
+              onClick={() => setQuickFilter(quickFilter === "ativos" ? null : "ativos")}
+            >
               <b style={{ color: "var(--ink)" }}>{clients.length}</b>
               <span>processos ativos</span>
-            </div>
-            <div className="admin-summary__card">
+            </button>
+            <button
+              className={`admin-summary__card ${quickFilter === "liberados" ? "admin-summary__card--active" : ""}`}
+              onClick={() => setQuickFilter(quickFilter === "liberados" ? null : "liberados")}
+            >
               <b style={{ color: "var(--success)" }}>
                 {clients.filter((c) => c.stage === STAGES.length - 1 && c.outcome !== "recusada").length}
               </b>
               <span>licenças liberadas</span>
-            </div>
-            <div className="admin-summary__card">
+            </button>
+            <button
+              className={`admin-summary__card ${quickFilter === "analise" ? "admin-summary__card--active" : ""}`}
+              onClick={() => setQuickFilter(quickFilter === "analise" ? null : "analise")}
+            >
               <b style={{ color: "var(--accent)" }}>{clients.filter((c) => c.stage === 3).length}</b>
               <span>em análise no órgão</span>
-            </div>
+            </button>
           </div>
         )}
 
@@ -1710,7 +1791,12 @@ export default function App() {
             {clients
               .filter((c) => {
                 if (!(view === "admin")) return true;
-                return c.name.toLowerCase().includes(clientSearch.trim().toLowerCase());
+                const matchesSearch = c.name.toLowerCase().includes(clientSearch.trim().toLowerCase());
+                const lastIndex = STAGES.length - 1;
+                let matchesQuickFilter = true;
+                if (quickFilter === "liberados") matchesQuickFilter = c.stage === lastIndex && c.outcome !== "recusada";
+                if (quickFilter === "analise") matchesQuickFilter = c.stage === 3;
+                return matchesSearch && matchesQuickFilter;
               })
               .map((c) => (
                 <button
@@ -1719,6 +1805,7 @@ export default function App() {
                   onClick={() => {
                     setSelectedId(c.id);
                     setEditingClient(false);
+                    setConfirmingDelete(false);
                   }}
                 >
                   <span className="client-pill__dot" />
@@ -1763,7 +1850,12 @@ export default function App() {
           <div className="client-detail-bar">
             <div className="client-detail-bar__row">
               <strong>{client.name}</strong>
-              <button onClick={() => setEditingClient(true)}>Editar cliente</button>
+              <div className="client-detail-bar__actions">
+                <button onClick={() => setEditingClient(true)}>Editar cliente</button>
+                <button className="client-detail-bar__delete" onClick={() => setConfirmingDelete(true)}>
+                  Excluir cliente
+                </button>
+              </div>
             </div>
             <label className="client-detail-bar__deadline">
               Prazo para homologação
@@ -1774,6 +1866,23 @@ export default function App() {
                 onChange={(e) => updateClient(client.id, (c) => ({ ...c, deadline: e.target.value }))}
               />
             </label>
+
+            {confirmingDelete && (
+              <div className="delete-confirm">
+                <p>
+                  Tem certeza que quer excluir <strong>{client.name}</strong>? Essa ação não pode ser desfeita — o
+                  processo e os anexos dele serão apagados.
+                </p>
+                <div className="delete-confirm__actions">
+                  <button className="new-client__cancel" onClick={() => setConfirmingDelete(false)}>
+                    Cancelar
+                  </button>
+                  <button className="delete-confirm__confirm" disabled={deleting} onClick={() => deleteClient(client.id)}>
+                    {deleting ? "Excluindo…" : "Sim, excluir"}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
