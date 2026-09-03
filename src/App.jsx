@@ -162,6 +162,12 @@ function rowToClient(row) {
 
 const STAGES = [
   {
+    key: "dossie",
+    title: "Envio de documentos pessoais",
+    field: "Montagem do dossiê",
+    detail: "Envio de documentos pessoais, comprovante de endereço e localização para montar o dossiê que dará entrada no processo.",
+  },
+  {
     key: "ctf",
     title: "Cadastro Técnico Federal",
     field: "CTF — IBAMA",
@@ -1758,7 +1764,7 @@ export default function App() {
               className={`admin-summary__card ${quickFilter === "analise" ? "admin-summary__card--active" : ""}`}
               onClick={() => setQuickFilter(quickFilter === "analise" ? null : "analise")}
             >
-              <b style={{ color: "var(--accent)" }}>{clients.filter((c) => c.stage === 3).length}</b>
+              <b style={{ color: "var(--accent)" }}>{clients.filter((c) => c.stage === 4).length}</b>
               <span>em análise no órgão</span>
             </button>
           </div>
@@ -1795,7 +1801,7 @@ export default function App() {
                 const lastIndex = STAGES.length - 1;
                 let matchesQuickFilter = true;
                 if (quickFilter === "liberados") matchesQuickFilter = c.stage === lastIndex && c.outcome !== "recusada";
-                if (quickFilter === "analise") matchesQuickFilter = c.stage === 3;
+                if (quickFilter === "analise") matchesQuickFilter = c.stage === 4;
                 return matchesSearch && matchesQuickFilter;
               })
               .map((c) => (
