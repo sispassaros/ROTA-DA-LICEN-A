@@ -145,6 +145,29 @@ async function uploadAttachment(file, clientId, stageIndex, accessToken) {
   };
 }
 
+async function uploadProcedureFile(file, procedureId, stepIndex, accessToken) {
+  const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+  const path = `procedures/${procedureId}/${stepIndex}-${Date.now()}-${safeName}`;
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/attachments/${path}`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": file.type,
+    },
+    body: file,
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`${res.status}: ${text}`);
+  }
+  return {
+    name: file.name,
+    type: file.type,
+    url: `${SUPABASE_URL}/storage/v1/object/public/attachments/${path}`,
+  };
+}
+
 function rowToClient(row) {
   return {
     id: row.id,
@@ -834,6 +857,7 @@ function ProcedureForm({ initial, onSave, onClose, accessToken }) {
             .split("\n")
             .map((d) => d.trim())
             .filter(Boolean),
+          files: s.files || [],
         }));
       const body = { title: title.trim(), description: description.trim(), steps: cleanSteps };
       if (initial?.id) {
@@ -886,7 +910,48 @@ function ProcedureForm({ initial, onSave, onClose, accessToken }) {
   );
 }
 
-function ProcedureDetail({ procedure }) {
+function ProcedureDetail({ procedure, accessToken, onUpdateProcedure }) {
+  const [uploadingIndex, setUploadingIndex] = useState(null);
+  const [uploadError, setUploadError] = useState(null);
+
+  async function saveSteps(nextSteps) {
+    const [row] = await supaFetch(
+      `procedures?id=eq.${procedure.id}`,
+      { method: "PATCH", body: JSON.stringify({ steps: nextSteps }) },
+      accessToken
+    );
+    onUpdateProcedure(row);
+  }
+
+  async function handleFileChange(stepIndex, e) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUploadError(null);
+    setUploadingIndex(stepIndex);
+    try {
+      const uploaded = await uploadProcedureFile(file, procedure.id, stepIndex, accessToken);
+      const nextSteps = procedure.steps.map((s, i) =>
+        i === stepIndex ? { ...s, files: [...(s.files || []), uploaded] } : s
+      );
+      await saveSteps(nextSteps);
+    } catch (err) {
+      setUploadError(err.message);
+    } finally {
+      setUploadingIndex(null);
+    }
+  }
+
+  async function removeFile(stepIndex, fileIndex) {
+    const nextSteps = procedure.steps.map((s, i) => {
+      if (i !== stepIndex) return s;
+      const files = [...(s.files || [])];
+      files.splice(fileIndex, 1);
+      return { ...s, files };
+    });
+    await saveSteps(nextSteps);
+  }
+
   return (
     <div className="proc-detail">
       {procedure.description && <p className="proc-detail__description">{procedure.description}</p>}
@@ -903,6 +968,46 @@ function ProcedureDetail({ procedure }) {
               ))}
             </ul>
           )}
+
+          {step.files?.length > 0 && (
+            <div className="attachments">
+              {step.files.map((f, fi) => {
+                const isPdf = (f.type || "").includes("pdf");
+                return (
+                  <div className="attachments__item" key={fi}>
+                    <a href={f.url} target="_blank" rel="noopener noreferrer">
+                      <span className={`attachments__icon ${isPdf ? "attachments__icon--pdf" : "attachments__icon--image"}`}>
+                        {isPdf ? <FileText size={13} /> : <Image size={13} />}
+                      </span>
+                      <span className="attachments__name">{f.name}</span>
+                    </a>
+                    <button type="button" className="attachments__remove" onClick={() => removeFile(i, fi)} title="Remover arquivo">
+                      <X size={11} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <label className="attachments__upload">
+            {uploadingIndex === i ? (
+              <>
+                <Loader2 size={12} className="spin" /> Enviando…
+              </>
+            ) : (
+              <>
+                <Paperclip size={12} /> Anexar PDF ou imagem
+              </>
+            )}
+            <input
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+              onChange={(e) => handleFileChange(i, e)}
+              disabled={uploadingIndex !== null}
+            />
+          </label>
+          {uploadingIndex === i && uploadError && <p className="login-error">Não foi possível enviar: {uploadError}</p>}
         </div>
       ))}
     </div>
@@ -1041,7 +1146,7 @@ function ProceduresView({
             )}
           </div>
 
-          <ProcedureDetail procedure={selectedProcedure} />
+          <ProcedureDetail procedure={selectedProcedure} accessToken={accessToken} onUpdateProcedure={onProcedureSaved} />
         </>
       )}
     </div>
