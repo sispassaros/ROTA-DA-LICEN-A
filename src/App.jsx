@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Feather, Check, Clock, Circle, ChevronRight, User, LayoutGrid, StickyNote, Plus, Minus, Loader2, UserPlus, X, Paperclip, Search, FileText, Image, BookOpen } from "lucide-react";
+import { Feather, Check, Clock, Circle, ChevronRight, ChevronLeft, User, LayoutGrid, StickyNote, Plus, Minus, Loader2, UserPlus, X, Paperclip, Search, FileText, Image, BookOpen } from "lucide-react";
 
 const SUPABASE_URL = "https://xoxdqbdmryhcqxunvpxd.supabase.co";
 const SUPABASE_KEY = "sb_publishable_mcE5RKGiKNhQLrfgEDdzdg_enaeizB6";
@@ -925,39 +925,53 @@ function ProceduresView({
   deleteProcedure,
   accessToken,
 }) {
+  const [mode, setMode] = useState("list"); // "list" | "detail"
+
+  function openDetail(id) {
+    setSelectedProcedureId(id);
+    setEditingProcedure(false);
+    setConfirmingDeleteProcedure(false);
+    setMode("detail");
+  }
+  function backToList() {
+    setMode("list");
+    setEditingProcedure(false);
+    setConfirmingDeleteProcedure(false);
+  }
+  function handleSaved(row) {
+    onProcedureSaved(row);
+    setSelectedProcedureId(row.id);
+    setMode("detail");
+  }
+  function handleDelete(id) {
+    deleteProcedure(id);
+    setMode("list");
+  }
+
+  const showingForm = showNewProcedure || editingProcedure;
+  const showingDetail = mode === "detail" && selectedProcedure && !showingForm;
+  const showingList = mode === "list" && !showingForm;
+
   return (
     <div className="proc-view">
       <div className="hero">
         <div className="hero__eyebrow">Referência interna</div>
-        <h1>Procedimentos</h1>
-        <p>Seus POPs — passo a passo e documentos necessários de cada tipo de processo.</p>
+        <h1>{showingDetail || editingProcedure ? selectedProcedure?.title || "Procedimento" : "Procedimentos"}</h1>
+        <p>
+          {showingDetail || editingProcedure
+            ? "Passo a passo e documentos necessários deste procedimento."
+            : "Seus POPs — passo a passo e documentos necessários de cada tipo de processo."}
+        </p>
       </div>
 
-      <div className="client-select">
-        {procedures.map((p) => (
-          <button
-            key={p.id}
-            className={`client-pill ${selectedProcedureId === p.id ? "active" : ""}`}
-            onClick={() => {
-              setSelectedProcedureId(p.id);
-              setEditingProcedure(false);
-              setConfirmingDeleteProcedure(false);
-            }}
-          >
-            <span className="client-pill__dot" />
-            {p.title}
-            <ChevronRight size={12} />
-          </button>
-        ))}
-        {!showNewProcedure && (
-          <button className="client-pill client-pill--new" onClick={() => setShowNewProcedure(true)}>
-            <Plus size={13} /> Novo procedimento
-          </button>
-        )}
-      </div>
+      {(showingDetail || showingForm) && (
+        <button className="proc-back" onClick={backToList}>
+          <ChevronLeft size={14} /> Voltar para procedimentos
+        </button>
+      )}
 
       {showNewProcedure && (
-        <ProcedureForm accessToken={accessToken} onClose={() => setShowNewProcedure(false)} onSave={onProcedureSaved} />
+        <ProcedureForm accessToken={accessToken} onClose={() => setShowNewProcedure(false)} onSave={handleSaved} />
       )}
 
       {editingProcedure && selectedProcedure && (
@@ -966,11 +980,33 @@ function ProceduresView({
           initial={selectedProcedure}
           accessToken={accessToken}
           onClose={() => setEditingProcedure(false)}
-          onSave={onProcedureSaved}
+          onSave={handleSaved}
         />
       )}
 
-      {selectedProcedure && !showNewProcedure && !editingProcedure && (
+      {showingList && (
+        <>
+          <div className="proc-list">
+            {procedures.map((p) => (
+              <button key={p.id} className="proc-list-item" onClick={() => openDetail(p.id)}>
+                <span className="client-pill__dot" />
+                <span className="proc-list-item__title">{p.title}</span>
+                <ChevronRight size={15} />
+              </button>
+            ))}
+          </div>
+          <button className="proc-add-step proc-add-step--main" onClick={() => setShowNewProcedure(true)}>
+            <Plus size={14} /> Novo procedimento
+          </button>
+          {!procedures.length && (
+            <p style={{ fontFamily: "monospace", fontSize: 13, color: "var(--muted)", marginTop: 14 }}>
+              Nenhum procedimento cadastrado ainda.
+            </p>
+          )}
+        </>
+      )}
+
+      {showingDetail && (
         <>
           <div className="client-detail-bar">
             <div className="client-detail-bar__row">
@@ -996,7 +1032,7 @@ function ProceduresView({
                   <button
                     className="delete-confirm__confirm"
                     disabled={deleting}
-                    onClick={() => deleteProcedure(selectedProcedure.id)}
+                    onClick={() => handleDelete(selectedProcedure.id)}
                   >
                     {deleting ? "Excluindo…" : "Sim, excluir"}
                   </button>
@@ -1007,12 +1043,6 @@ function ProceduresView({
 
           <ProcedureDetail procedure={selectedProcedure} />
         </>
-      )}
-
-      {!procedures.length && !showNewProcedure && (
-        <p style={{ fontFamily: "monospace", fontSize: 13, color: "var(--muted)" }}>
-          Nenhum procedimento cadastrado ainda.
-        </p>
       )}
     </div>
   );
@@ -1666,6 +1696,59 @@ export default function App() {
           background: transparent;
           color: var(--accent);
           cursor: pointer;
+        }
+        .proc-add-step--main {
+          width: 100%;
+          justify-content: center;
+          padding: 12px;
+          margin-top: 12px;
+        }
+
+        .proc-back {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          font-family: 'Inter', sans-serif;
+          font-weight: 500;
+          font-size: 12.5px;
+          color: var(--muted);
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          margin-bottom: 16px;
+        }
+        .proc-back:hover {
+          color: var(--accent);
+        }
+
+        .proc-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .proc-list-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          width: 100%;
+          text-align: left;
+          background: var(--surface);
+          border: 1px solid var(--line);
+          border-radius: 8px;
+          padding: 14px 16px;
+          box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+          cursor: pointer;
+          font-family: 'Inter', sans-serif;
+          color: var(--ink);
+        }
+        .proc-list-item:hover {
+          border-color: var(--accent);
+        }
+        .proc-list-item__title {
+          flex: 1;
+          font-size: 14px;
+          font-weight: 500;
         }
 
         .proc-detail {
