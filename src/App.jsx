@@ -175,6 +175,7 @@ function rowToClient(row) {
     species: row.species,
     email: row.email,
     stage: row.stage,
+    type: row.type || "licenca",
     startedAt: row.started_at,
     notes: row.notes || {},
     attachments: row.attachments || {},
@@ -183,7 +184,7 @@ function rowToClient(row) {
   };
 }
 
-const STAGES = [
+const STAGES_LICENCA = [
   {
     key: "dossie",
     title: "Envio de documentos pessoais",
@@ -222,6 +223,54 @@ const STAGES = [
   },
 ];
 
+const STAGES_ATUALIZACAO = [
+  {
+    key: "pendencias",
+    title: "Conferência de pendências no SISPASS",
+    field: "SISPASS",
+    detail: "Verificação de pendências existentes no cadastro atual dentro do SISPASS.",
+  },
+  {
+    key: "novo-endereco",
+    title: "Alteração para o novo endereço",
+    field: "SISPASS",
+    detail: "Atualização do endereço dentro do SISPASS para o novo estado (São Paulo).",
+  },
+  {
+    key: "declaracao-plantel",
+    title: "Declaração de plantel preexistente",
+    field: "SISPASS",
+    detail: "Declaração do plantel preexistente e envio do comprovante de adimplência.",
+  },
+  {
+    key: "envio-sigam-semil",
+    title: "Envio de solicitação ao SIGAM/SEMIL",
+    field: "SIGAM/SEMIL",
+    detail: "Envio da solicitação de atualização cadastral para o SIGAM/SEMIL.",
+  },
+  {
+    key: "protocolo-sigam-semil",
+    title: "Protocolo de abertura no SIGAM/SEMIL",
+    field: "SIGAM/SEMIL · Protocolo",
+    detail: "Abertura do protocolo da solicitação junto ao SIGAM/SEMIL.",
+  },
+  {
+    key: "deferimento",
+    title: "Deferimento ou indeferimento",
+    field: "SIGAM/SEMIL · Órgão ambiental",
+    detail: "Decisão final do órgão ambiental sobre a solicitação de atualização cadastral.",
+  },
+];
+
+const PROCESS_TYPES = {
+  licenca: { label: "Rota da Licença", shortLabel: "Licença", stages: STAGES_LICENCA },
+  atualizacao: { label: "Atualização Cadastral", shortLabel: "Atualização Cadastral", stages: STAGES_ATUALIZACAO },
+};
+
+function stagesFor(client) {
+  return PROCESS_TYPES[client?.type || "licenca"].stages;
+}
+
 function StageStamp({ status }) {
   const label =
     status === "done" ? "concluído" : status === "current" ? "em andamento" : status === "recusada" ? "recusada" : "pendente";
@@ -229,7 +278,7 @@ function StageStamp({ status }) {
 }
 
 function getStageStatus(i, client) {
-  const lastIndex = STAGES.length - 1;
+  const lastIndex = stagesFor(client).length - 1;
   if (i === lastIndex && client.stage === lastIndex) {
     return client.outcome === "recusada" ? "recusada" : "done";
   }
@@ -239,7 +288,8 @@ function getStageStatus(i, client) {
 }
 
 function Timeline({ client, editable, onAdvance, onRetreat, onNote, onOutcome, onAttach, onRemoveAttachment }) {
-  const lastIndex = STAGES.length - 1;
+  const stages = stagesFor(client);
+  const lastIndex = stages.length - 1;
   const [uploadingIndex, setUploadingIndex] = useState(null);
   const [uploadError, setUploadError] = useState(null);
 
@@ -262,7 +312,7 @@ function Timeline({ client, editable, onAdvance, onRetreat, onNote, onOutcome, o
     <div className="timeline">
       <div className="timeline__spine" aria-hidden="true" />
 
-      {STAGES.map((stage, i) => {
+      {stages.map((stage, i) => {
         const status = getStageStatus(i, client);
         const isLastReached = i === lastIndex && client.stage === lastIndex;
         const stageAttachments = client.attachments?.[i] || [];
@@ -381,7 +431,7 @@ function Timeline({ client, editable, onAdvance, onRetreat, onNote, onOutcome, o
           <button onClick={onRetreat} disabled={client.stage === 0}>
             <Minus size={14} /> Voltar etapa
           </button>
-          <button onClick={onAdvance} disabled={client.stage === STAGES.length - 1} className="stage-controls__primary">
+          <button onClick={onAdvance} disabled={client.stage === lastIndex} className="stage-controls__primary">
             <Plus size={14} /> Avançar etapa
           </button>
         </div>
@@ -671,6 +721,7 @@ function LoginScreen({ onPasswordLogin }) {
 function NewClientForm({ onCreated, onClose, accessToken }) {
   const [name, setName] = useState("");
   const [species, setSpecies] = useState("");
+  const [type, setType] = useState("licenca");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [saving, setSaving] = useState(false);
@@ -688,7 +739,7 @@ function NewClientForm({ onCreated, onClose, accessToken }) {
         {
           method: "POST",
           body: JSON.stringify([
-            { name, species, email: email.trim(), stage: 0, started_at: today, notes: {} },
+            { name, species, type, email: email.trim(), stage: 0, started_at: today, notes: {} },
           ]),
         },
         accessToken
@@ -706,6 +757,16 @@ function NewClientForm({ onCreated, onClose, accessToken }) {
       <form onSubmit={submit} className="new-client__form">
         <input placeholder="Nome completo" required value={name} onChange={(e) => setName(e.target.value)} />
         <input placeholder="Plantel (ex: Curió, Bicudo)" value={species} onChange={(e) => setSpecies(e.target.value)} />
+        <label className="proc-type-label">
+          Tipo de processo
+          <select className="proc-type-select" value={type} onChange={(e) => setType(e.target.value)}>
+            {Object.entries(PROCESS_TYPES).map(([key, cfg]) => (
+              <option key={key} value={key}>
+                {cfg.label}
+              </option>
+            ))}
+          </select>
+        </label>
         <input
           type="email"
           placeholder="E-mail do cliente (login)"
@@ -734,6 +795,7 @@ function NewClientForm({ onCreated, onClose, accessToken }) {
 function EditClientForm({ client, onSaved, onClose, accessToken }) {
   const [name, setName] = useState(client.name);
   const [species, setSpecies] = useState(client.species || "");
+  const [type, setType] = useState(client.type || "licenca");
   const [email, setEmail] = useState(client.email || "");
   const [password, setPassword] = useState("");
   const [saving, setSaving] = useState(false);
@@ -749,7 +811,7 @@ function EditClientForm({ client, onSaved, onClose, accessToken }) {
       if (emailChanged) {
         await signupUser(email.trim(), password);
       }
-      const fields = { name, species, email: email.trim() };
+      const fields = { name, species, type, email: email.trim() };
       const [row] = await supaFetch(
         `clients?id=eq.${client.id}`,
         { method: "PATCH", body: JSON.stringify(fields) },
@@ -768,6 +830,16 @@ function EditClientForm({ client, onSaved, onClose, accessToken }) {
       <form onSubmit={submit} className="new-client__form">
         <input placeholder="Nome completo" required value={name} onChange={(e) => setName(e.target.value)} />
         <input placeholder="Plantel (ex: Curió, Bicudo)" value={species} onChange={(e) => setSpecies(e.target.value)} />
+        <label className="proc-type-label">
+          Tipo de processo
+          <select className="proc-type-select" value={type} onChange={(e) => setType(e.target.value)}>
+            {Object.entries(PROCESS_TYPES).map(([key, cfg]) => (
+              <option key={key} value={key}>
+                {cfg.label}
+              </option>
+            ))}
+          </select>
+        </label>
         <input
           type="email"
           placeholder="E-mail do cliente (login)"
@@ -2275,6 +2347,23 @@ export default function App() {
           border-radius: 6px;
           background: var(--paper);
         }
+        .proc-type-label {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+          font-size: 11px;
+          color: var(--muted);
+          font-weight: 500;
+        }
+        .proc-type-select {
+          font-family: 'Inter', sans-serif;
+          font-size: 13.5px;
+          padding: 10px 12px;
+          border: 1px solid var(--line);
+          border-radius: 6px;
+          background: var(--paper);
+          color: var(--ink);
+        }
         .new-client__actions {
           display: flex;
           gap: 10px;
@@ -2336,7 +2425,7 @@ export default function App() {
               <img src="/logo-icon.png" alt="SisPássaro" />
             </div>
             <div className="brand__text">
-              Rota da Licença
+              {client && view !== "procedimentos" ? PROCESS_TYPES[client.type || "licenca"].label : "Rota da Licença"}
               <small>Consultoria · Criação Amadora</small>
             </div>
           </div>
@@ -2400,16 +2489,16 @@ export default function App() {
               onClick={() => setQuickFilter(quickFilter === "liberados" ? null : "liberados")}
             >
               <b style={{ color: "var(--success)" }}>
-                {clients.filter((c) => c.stage === STAGES.length - 1 && c.outcome !== "recusada").length}
+                {clients.filter((c) => c.stage === stagesFor(c).length - 1 && c.outcome !== "recusada").length}
               </b>
-              <span>licenças liberadas</span>
+              <span>processos concluídos</span>
             </button>
             <button
               className={`admin-summary__card ${quickFilter === "analise" ? "admin-summary__card--active" : ""}`}
               onClick={() => setQuickFilter(quickFilter === "analise" ? null : "analise")}
             >
-              <b style={{ color: "var(--accent)" }}>{clients.filter((c) => c.stage === 4).length}</b>
-              <span>em análise no órgão</span>
+              <b style={{ color: "var(--accent)" }}>{clients.filter((c) => c.stage === stagesFor(c).length - 2).length}</b>
+              <span>em andamento no órgão</span>
             </button>
           </div>
         )}
@@ -2442,10 +2531,10 @@ export default function App() {
               .filter((c) => {
                 if (!(view === "admin")) return true;
                 const matchesSearch = c.name.toLowerCase().includes(clientSearch.trim().toLowerCase());
-                const lastIndex = STAGES.length - 1;
+                const cLastIndex = stagesFor(c).length - 1;
                 let matchesQuickFilter = true;
-                if (quickFilter === "liberados") matchesQuickFilter = c.stage === lastIndex && c.outcome !== "recusada";
-                if (quickFilter === "analise") matchesQuickFilter = c.stage === 4;
+                if (quickFilter === "liberados") matchesQuickFilter = c.stage === cLastIndex && c.outcome !== "recusada";
+                if (quickFilter === "analise") matchesQuickFilter = c.stage === cLastIndex - 1;
                 return matchesSearch && matchesQuickFilter;
               })
               .map((c) => (
@@ -2540,7 +2629,7 @@ export default function App() {
           client={client}
           editable={isAdmin && view === "admin"}
           onAdvance={() =>
-            updateClient(client.id, (c) => ({ ...c, stage: Math.min(c.stage + 1, STAGES.length - 1) }))
+            updateClient(client.id, (c) => ({ ...c, stage: Math.min(c.stage + 1, stagesFor(c).length - 1) }))
           }
           onRetreat={() =>
             updateClient(client.id, (c) => ({ ...c, stage: Math.max(c.stage - 1, 0) }))
