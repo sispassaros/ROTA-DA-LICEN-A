@@ -309,7 +309,7 @@ function Timeline({ client, editable, onAdvance, onRetreat, onNote, onOutcome, o
   }
 
   return (
-    <div className="timeline">
+    <div className={`timeline ${editable ? "timeline--admin" : ""}`}>
       <div className="timeline__spine" aria-hidden="true" />
 
       {stages.map((stage, i) => {
@@ -463,7 +463,7 @@ function LoginScreen({ onPasswordLogin }) {
   return (
     <div className="app">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
         * { box-sizing: border-box; }
         .app {
           --ink: #0f172a;
@@ -473,8 +473,11 @@ function LoginScreen({ onPasswordLogin }) {
           --muted: #52606d;
           --line: #e2e8f0;
           --accent: #1e293b;
+          --accent2: #e07a3f;
+          --accent2-soft: #fdf0e7;
+          --accent2-dark: #a1481f;
           --rust: #c23b2e;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           background: var(--paper);
           color: var(--ink);
           min-height: 100vh;
@@ -557,7 +560,7 @@ function LoginScreen({ onPasswordLogin }) {
           object-fit: contain;
         }
         .login-visual__title {
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 32px;
           font-weight: 800;
           letter-spacing: 0.01em;
@@ -565,7 +568,7 @@ function LoginScreen({ onPasswordLogin }) {
           text-align: center;
         }
         .login-visual__subtitle {
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 12px;
           font-weight: 600;
           letter-spacing: 0.14em;
@@ -614,7 +617,7 @@ function LoginScreen({ onPasswordLogin }) {
         }
         .login-card .brand__mark { margin: 0 auto 14px; }
         .login-card h1 {
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-weight: 700;
           font-size: 20px;
           letter-spacing: -0.01em;
@@ -628,7 +631,7 @@ function LoginScreen({ onPasswordLogin }) {
         }
         .login-card input {
           width: 100%;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 14px;
           padding: 11px 13px;
           border: 1px solid var(--line);
@@ -638,7 +641,7 @@ function LoginScreen({ onPasswordLogin }) {
         }
         .login-card button {
           width: 100%;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-weight: 500;
           font-size: 13px;
           background: var(--accent);
@@ -661,7 +664,7 @@ function LoginScreen({ onPasswordLogin }) {
         .login-toggle {
           background: transparent;
           color: var(--accent) !important;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 12px;
           margin-top: 14px;
           border: none;
@@ -1508,7 +1511,7 @@ export default function App() {
   return (
     <div className="app">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
         * { box-sizing: border-box; }
         .app {
@@ -1519,6 +1522,9 @@ export default function App() {
           --muted: #52606d;
           --line: #e2e8f0;
           --accent: #1e293b;
+          --accent2: #e07a3f;
+          --accent2-soft: #fdf0e7;
+          --accent2-dark: #a1481f;
           --accent-soft: #e7eef6;
           --success: #059669;
           --success-soft: #e5f6ee;
@@ -1609,8 +1615,8 @@ export default function App() {
           transition: background 0.15s ease, color 0.15s ease;
         }
         .switcher button.active {
-          background: var(--success);
-          color: #ffffff;
+          background: var(--accent2);
+          color: #2c1204;
         }
 
         .hero {
@@ -1648,7 +1654,7 @@ export default function App() {
           gap: 8px;
         }
         .client-pill {
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-weight: 500;
           font-size: 12.5px;
           border: 1px solid var(--line);
@@ -1672,7 +1678,7 @@ export default function App() {
           background: var(--accent);
         }
         .client-pill.active .client-pill__dot {
-          background: #ffffff;
+          background: var(--accent2);
         }
 
         .client-search {
@@ -1691,7 +1697,7 @@ export default function App() {
           border: none;
           outline: none;
           background: transparent;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 13.5px;
           color: var(--ink);
           flex: 1;
@@ -1719,7 +1725,7 @@ export default function App() {
           gap: 8px;
         }
         .client-detail-bar__row button {
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-weight: 500;
           font-size: 12px;
           padding: 6px 12px;
@@ -1742,7 +1748,7 @@ export default function App() {
           font-weight: 500;
         }
         .client-detail-bar__deadline input {
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 13px;
           padding: 8px 10px;
           border: 1px solid var(--line);
@@ -1769,7 +1775,7 @@ export default function App() {
           justify-content: flex-end;
         }
         .delete-confirm__confirm {
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-weight: 500;
           font-size: 12px;
           padding: 8px 14px;
@@ -1785,7 +1791,7 @@ export default function App() {
         }
 
         .proc-form__description {
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 13px;
           padding: 10px 12px;
           border: 1px solid var(--line);
@@ -1827,7 +1833,7 @@ export default function App() {
         }
         .proc-step__title {
           flex: 1;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 13px;
           font-weight: 500;
           padding: 7px 10px;
@@ -1850,7 +1856,7 @@ export default function App() {
         }
         .proc-step__docs {
           width: 100%;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 12.5px;
           padding: 8px 10px;
           border: 1px solid var(--line);
@@ -1864,7 +1870,7 @@ export default function App() {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-weight: 500;
           font-size: 12.5px;
           padding: 8px 12px;
@@ -1885,7 +1891,7 @@ export default function App() {
           display: inline-flex;
           align-items: center;
           gap: 5px;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-weight: 500;
           font-size: 12.5px;
           color: var(--muted);
@@ -1916,7 +1922,7 @@ export default function App() {
           padding: 14px 16px;
           box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
           cursor: pointer;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           color: var(--ink);
         }
         .proc-list-item:hover {
@@ -2022,6 +2028,23 @@ export default function App() {
           70% { box-shadow: 0 0 0 8px rgba(30, 41, 59, 0); }
           100% { box-shadow: 0 0 0 0 rgba(30, 41, 59, 0); }
         }
+        .timeline--admin .checkpoint--current .checkpoint__marker {
+          background: var(--accent2);
+          border-color: var(--accent2);
+          animation: pulse-ring-orange 2s ease-out infinite;
+        }
+        @keyframes pulse-ring-orange {
+          0% { box-shadow: 0 0 0 0 rgba(224, 122, 63, 0.4); }
+          70% { box-shadow: 0 0 0 8px rgba(224, 122, 63, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(224, 122, 63, 0); }
+        }
+        .timeline--admin .checkpoint--current .checkpoint__card {
+          border-color: var(--accent2);
+        }
+        .timeline--admin .stamp--current {
+          color: var(--accent2-dark);
+          background: var(--accent2-soft);
+        }
         .checkpoint--recusada .checkpoint__marker {
           background: var(--rust);
           border-color: var(--rust);
@@ -2089,7 +2112,7 @@ export default function App() {
           border: 1px solid var(--line);
           border-radius: 6px;
           background: var(--paper);
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 12.5px;
           padding: 8px 10px;
           resize: vertical;
@@ -2199,7 +2222,7 @@ export default function App() {
           margin-top: 12px;
         }
         .outcome-picker button {
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-weight: 500;
           font-size: 12px;
           padding: 7px 12px;
@@ -2242,7 +2265,7 @@ export default function App() {
           padding-left: 0;
         }
         .stage-controls button {
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-weight: 500;
           font-size: 12.5px;
           border: 1px solid var(--line);
@@ -2263,6 +2286,21 @@ export default function App() {
           border-color: var(--accent) !important;
         }
 
+        /* A fonte moderna (Plus Jakarta Sans) só aparece nas telas exclusivas
+           do administrador (Painel/Procedimentos) — o cliente continua vendo
+           a fonte original (Inter) na própria conta dele, sem alteração. */
+        .shell--admin-modern {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .shell--admin-modern .brand__text,
+        .shell--admin-modern .brand__text small,
+        .shell--admin-modern .switcher button,
+        .shell--admin-modern .hero h1,
+        .shell--admin-modern .checkpoint__row h3,
+        .shell--admin-modern .stamp {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
         .admin-summary {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -2272,8 +2310,8 @@ export default function App() {
         .admin-summary__card {
           background: var(--surface);
           border: 1px solid var(--line);
-          border-radius: 8px;
-          padding: 14px 16px;
+          border-radius: 12px;
+          padding: 20px 22px;
           box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
           cursor: pointer;
           text-align: left;
@@ -2287,15 +2325,24 @@ export default function App() {
           border-color: var(--accent);
           box-shadow: 0 0 0 1px var(--accent);
         }
+        .admin-summary__card--highlight {
+          border: 2px solid var(--accent2);
+        }
+        .admin-summary__card--highlight:hover {
+          border-color: var(--accent2);
+        }
+        .admin-summary__card--highlight.admin-summary__card--active {
+          box-shadow: 0 0 0 1px var(--accent2);
+        }
         .admin-summary__card b {
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-weight: 700;
-          font-size: 22px;
+          font-size: 30px;
           display: block;
         }
         .admin-summary__card span {
           font-family: 'JetBrains Mono', monospace;
-          font-size: 10px;
+          font-size: 11px;
           text-transform: uppercase;
           letter-spacing: 0.04em;
           color: var(--muted);
@@ -2340,7 +2387,7 @@ export default function App() {
           gap: 10px;
         }
         .new-client__form input {
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 13.5px;
           padding: 10px 12px;
           border: 1px solid var(--line);
@@ -2356,7 +2403,7 @@ export default function App() {
           font-weight: 500;
         }
         .proc-type-select {
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 13.5px;
           padding: 10px 12px;
           border: 1px solid var(--line);
@@ -2370,7 +2417,7 @@ export default function App() {
           justify-content: flex-end;
         }
         .new-client__actions button {
-          font-family: 'Inter', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-weight: 500;
           font-size: 12.5px;
           padding: 9px 14px;
@@ -2418,7 +2465,7 @@ export default function App() {
       `}</style>
 
 
-      <div className="shell">
+      <div className={`shell ${isAdmin && view !== "cliente" ? "shell--admin-modern" : ""}`}>
         <div className="topbar">
           <div className="brand">
             <div className="brand__mark brand__mark--logo">
@@ -2494,10 +2541,10 @@ export default function App() {
               <span>processos concluídos</span>
             </button>
             <button
-              className={`admin-summary__card ${quickFilter === "analise" ? "admin-summary__card--active" : ""}`}
+              className={`admin-summary__card admin-summary__card--highlight ${quickFilter === "analise" ? "admin-summary__card--active" : ""}`}
               onClick={() => setQuickFilter(quickFilter === "analise" ? null : "analise")}
             >
-              <b style={{ color: "var(--accent)" }}>{clients.filter((c) => c.stage === stagesFor(c).length - 2).length}</b>
+              <b style={{ color: "var(--accent2-dark)" }}>{clients.filter((c) => c.stage === stagesFor(c).length - 2).length}</b>
               <span>em andamento no órgão</span>
             </button>
           </div>
