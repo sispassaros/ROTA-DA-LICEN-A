@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Feather, Check, Clock, Circle, ChevronRight, ChevronLeft, User, LayoutGrid, StickyNote, Plus, Minus, Loader2, UserPlus, X, Paperclip, Search, FileText, Image, BookOpen } from "lucide-react";
+import { Feather, Check, Clock, Circle, ChevronRight, ChevronLeft, User, LayoutGrid, StickyNote, Plus, Minus, Loader2, UserPlus, X, Paperclip, Search, FileText, Image, BookOpen, Sun, Moon } from "lucide-react";
 
 const SUPABASE_URL = "https://xoxdqbdmryhcqxunvpxd.supabase.co";
 const SUPABASE_KEY = "sb_publishable_mcE5RKGiKNhQLrfgEDdzdg_enaeizB6";
@@ -440,7 +440,7 @@ function Timeline({ client, editable, onAdvance, onRetreat, onNote, onOutcome, o
   );
 }
 
-function LoginScreen({ onPasswordLogin }) {
+function LoginScreen({ onPasswordLogin, theme, onToggleTheme }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState("idle");
@@ -477,10 +477,29 @@ function LoginScreen({ onPasswordLogin }) {
           --accent2-soft: #fdf0e7;
           --accent2-dark: #a1481f;
           --rust: #c23b2e;
+          --danger-soft: #fbe8e5;
+          --danger-border: #f3b7ae;
+          --danger-text: #7a2a20;
           font-family: 'Plus Jakarta Sans', sans-serif;
           background: var(--paper);
           color: var(--ink);
           min-height: 100vh;
+        }
+        html[data-theme="dark"] .app {
+          --ink: #f1f5f9;
+          --paper: #0b1220;
+          --paper-2: #18233a;
+          --surface: #16213a;
+          --muted: #94a3b8;
+          --line: #2c3b56;
+          --accent: #5b8def;
+          --accent2: #f0954f;
+          --accent2-soft: rgba(240, 149, 79, 0.16);
+          --accent2-dark: #ffb37a;
+          --rust: #f87171;
+          --danger-soft: rgba(248, 113, 113, 0.16);
+          --danger-border: rgba(248, 113, 113, 0.4);
+          --danger-text: #fecaca;
         }
         .brand__mark {
           width: 32px; height: 32px;
@@ -672,9 +691,38 @@ function LoginScreen({ onPasswordLogin }) {
           cursor: pointer;
         }
 
+        .theme-toggle--login {
+          position: fixed;
+          top: 18px;
+          right: 18px;
+          width: 34px;
+          height: 34px;
+          border-radius: 8px;
+          border: 1px solid var(--line);
+          background: var(--surface);
+          color: var(--muted);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          z-index: 2;
+        }
+        .theme-toggle--login:hover {
+          border-color: var(--accent);
+          color: var(--accent);
+        }
+
       `}</style>
       <ForestWatermark />
       <div className="login-shell">
+        <button
+          type="button"
+          className="theme-toggle theme-toggle--login"
+          onClick={onToggleTheme}
+          title={theme === "dark" ? "Mudar para tema claro" : "Mudar para tema escuro"}
+        >
+          {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+        </button>
         <div className="login-visual">
           <div className="login-visual__rings" />
           <div className="login-visual__icon">
@@ -1256,6 +1304,25 @@ function ForestWatermark() {
 
 export default function App() {
   const [session, setSession] = useState(undefined);
+  const [theme, setTheme] = useState(() => {
+    try {
+      return localStorage.getItem("rota-da-licenca-theme") || "light";
+    } catch {
+      return "light";
+    }
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    try {
+      localStorage.setItem("rota-da-licenca-theme", theme);
+    } catch {}
+  }, [theme]);
+
+  function toggleTheme() {
+    setTheme((t) => (t === "dark" ? "light" : "dark"));
+  }
+
   const [view, setView] = useState("cliente");
   const [clients, setClients] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
@@ -1474,6 +1541,8 @@ export default function App() {
   if (!session) {
     return (
       <LoginScreen
+        theme={theme}
+        onToggleTheme={toggleTheme}
         onPasswordLogin={(s) => {
           localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(s));
           setSession(s);
@@ -1529,11 +1598,33 @@ export default function App() {
           --success: #059669;
           --success-soft: #e5f6ee;
           --rust: #c23b2e;
+          --danger-soft: #fbe8e5;
+          --danger-border: #f3b7ae;
+          --danger-text: #7a2a20;
           font-family: 'Inter', sans-serif;
           background: var(--paper);
           color: var(--ink);
           min-height: 100vh;
           padding: 0;
+        }
+        html[data-theme="dark"] .app {
+          --ink: #f1f5f9;
+          --paper: #0b1220;
+          --paper-2: #18233a;
+          --surface: #16213a;
+          --muted: #94a3b8;
+          --line: #2c3b56;
+          --accent: #5b8def;
+          --accent2: #f0954f;
+          --accent2-soft: rgba(240, 149, 79, 0.16);
+          --accent2-dark: #ffb37a;
+          --accent-soft: rgba(91, 141, 239, 0.16);
+          --success: #34d399;
+          --success-soft: rgba(52, 211, 153, 0.16);
+          --rust: #f87171;
+          --danger-soft: rgba(248, 113, 113, 0.16);
+          --danger-border: rgba(248, 113, 113, 0.4);
+          --danger-text: #fecaca;
         }
 
         .shell {
@@ -1617,6 +1708,24 @@ export default function App() {
         .switcher button.active {
           background: var(--accent2);
           color: #2c1204;
+        }
+
+        .theme-toggle {
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          border: 1px solid var(--line);
+          background: var(--surface);
+          color: var(--muted);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          flex-shrink: 0;
+        }
+        .theme-toggle:hover {
+          border-color: var(--accent);
+          color: var(--accent);
         }
 
         .hero {
@@ -1736,7 +1845,7 @@ export default function App() {
           cursor: pointer;
         }
         .client-detail-bar__delete {
-          border-color: #f3b7ae !important;
+          border-color: var(--danger-border) !important;
           color: var(--rust) !important;
         }
         .client-detail-bar__deadline {
@@ -1759,13 +1868,13 @@ export default function App() {
         .delete-confirm {
           margin-top: 14px;
           padding: 14px 16px;
-          background: #fdeeec;
-          border: 1px solid #f3b7ae;
+          background: var(--danger-soft);
+          border: 1px solid var(--danger-border);
           border-radius: 8px;
         }
         .delete-confirm p {
           font-size: 12.5px;
-          color: #7a2a20;
+          color: var(--danger-text);
           line-height: 1.5;
           margin: 0 0 12px;
         }
@@ -2165,7 +2274,7 @@ export default function App() {
           flex-shrink: 0;
         }
         .attachments__icon--pdf {
-          background: #fbe8e5;
+          background: var(--danger-soft);
           color: var(--rust);
         }
         .attachments__icon--image {
@@ -2214,7 +2323,7 @@ export default function App() {
         .stamp--done { color: var(--success); background: var(--success-soft); }
         .stamp--current { color: var(--accent); background: var(--accent-soft); }
         .stamp--pending { color: var(--muted); background: var(--paper-2); }
-        .stamp--recusada { color: var(--rust); background: #fbe8e5; }
+        .stamp--recusada { color: var(--rust); background: var(--danger-soft); }
 
         .outcome-picker {
           display: flex;
@@ -2238,12 +2347,12 @@ export default function App() {
           color: var(--success) !important;
         }
         .outcome-picker__danger.outcome-picker__active {
-          background: #fbe8e5 !important;
+          background: var(--danger-soft) !important;
           border-color: var(--rust) !important;
           color: var(--rust) !important;
         }
         .checkpoint__note--danger {
-          background: #fbe8e5;
+          background: var(--danger-soft);
           color: var(--rust);
         }
         .highlight-message {
@@ -2497,6 +2606,14 @@ export default function App() {
               </>
             )}
             <button onClick={logout}>Sair</button>
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={toggleTheme}
+              title={theme === "dark" ? "Mudar para tema claro" : "Mudar para tema escuro"}
+            >
+              {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+            </button>
           </div>
         </div>
 
